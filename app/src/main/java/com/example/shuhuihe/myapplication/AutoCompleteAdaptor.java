@@ -17,7 +17,6 @@ import com.android.volley.toolbox.JsonArrayRequest;
 import com.android.volley.toolbox.Volley;
 
 import org.json.JSONArray;
-import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.util.ArrayList;
@@ -33,9 +32,9 @@ public class AutoCompleteAdaptor extends ArrayAdapter<String> {
     RequestQueue queue = Volley.newRequestQueue(getContext());
 
 
-    public AutoCompleteAdaptor(Context context, int textViewResourceId) {
+    public AutoCompleteAdaptor(Context context, int textViewResourceId, List<String> companyList) {
         super(context, textViewResourceId);
-        this.companyList = new ArrayList<>();
+        this.companyList = companyList;
     }
 
     @Override
@@ -55,6 +54,8 @@ public class AutoCompleteAdaptor extends ArrayAdapter<String> {
             @Override
             protected FilterResults performFiltering(CharSequence constraint) {
                 final FilterResults filterResults = new FilterResults();
+                // Boolean to control complete
+                final Boolean finished[] = {false};
                 if (constraint != null) {
 
                     JsonArrayRequest jsArrReq = new JsonArrayRequest
@@ -70,11 +71,13 @@ public class AutoCompleteAdaptor extends ArrayAdapter<String> {
                                                     String name = jsObj.getString("Name");
                                                     String exchange = jsObj.getString("Exchange");
                                                     autoCompleteList.add(symbol+" - "+name+" ("+exchange+")");
-                                                    companyList = autoCompleteList;
-                                                    filterResults.values = companyList;
-                                                    filterResults.count = companyList.size();
                                                 }
+                                                companyList = autoCompleteList;
+                                                filterResults.values = companyList;
+                                                filterResults.count = companyList.size();
+                                                finished[0] = true;
                                             } catch (Exception e) {
+                                                finished[0] = true;
                                                 e.printStackTrace();
                                             }
                                         }
@@ -89,6 +92,7 @@ public class AutoCompleteAdaptor extends ArrayAdapter<String> {
                     queue.add(jsArrReq);
 
                 }
+                while (!finished[0]) {}
                 return filterResults;
             }
 
@@ -117,28 +121,12 @@ public class AutoCompleteAdaptor extends ArrayAdapter<String> {
             v = inflater.inflate(R.layout.list_company, null);
         }
 
-		/*
-         * Recall that the variable position is sent in as an argument to this method.
-		 * The variable simply refers to the position of the current object in the list. (The ArrayAdapter
-		 * iterates through the list we sent it)
-		 *
-		 * Therefore, i refers to the current Item object.
-		 */
         String company = companyList.get(position);
 
         if (company != null) {
 
-            // This is how you obtain a reference to the TextViews.
-            // These TextViews are created in the XML files we defined.
-
-//            TextView symbol = (TextView) v.findViewById(R.id.companySymbol);
             TextView autoDetails = (TextView) v.findViewById(R.id.stockCompany);
 
-            // check to see if each individual textview is null.
-            // if not, assign some text!
-//            if (symbol != null) {
-//                symbol.setText(i.getCompanySymbol());
-//            }
             if (autoDetails != null) {
                 autoDetails.setText(company);
             }

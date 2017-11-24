@@ -18,10 +18,10 @@ public class MainActivity extends AppCompatActivity {
 
         final AutoCompleteTextView searchStock = findViewById(R.id.autoCompleteTextView);
 
-        AutoCompleteAdaptor adapter1 = new AutoCompleteAdaptor(this, R.layout.list_company);
+        AutoCompleteAdaptor adapter1 = new AutoCompleteAdaptor(this, R.layout.list_company, company_list);
         searchStock.setAdapter(adapter1);
         searchStock.setThreshold(1);
-        searchStock.showDropDown();
+        //searchStock.showDropDown();
 
     }
 }
