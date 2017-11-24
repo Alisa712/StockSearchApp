@@ -97,7 +97,7 @@ public class AutoCompleteAdaptor extends ArrayAdapter<String> {
             }
 
             @Override
-            protected void publishResults(CharSequence contraint, FilterResults results) {
+            protected void publishResults(CharSequence constraint, FilterResults results) {
                 if (results != null && results.count > 0) {
                     notifyDataSetChanged();
                 } else {
@@ -125,7 +125,7 @@ public class AutoCompleteAdaptor extends ArrayAdapter<String> {
 
         if (company != null) {
 
-            TextView autoDetails = (TextView) v.findViewById(R.id.stockCompany);
+            TextView autoDetails = v.findViewById(R.id.stockCompany);
 
             if (autoDetails != null) {
                 autoDetails.setText(company);

@@ -1,3 +1,22 @@
 <resources>
     <string name="app_name">My Application</string>
+    <string name="stockSearchTitle">Stock Market Search</string>
+    <string name="getQuote">Get Quote</string>
+    <string name="clear">Clear</string>
+    <string name="fav">Favorites</string>
+
+
+    <string-array name="option_arrays">
+        <item>Sort By</item>
+        <item>Default</item>
+        <item>Symbol</item>
+        <item>Price</item>
+        <item>Change</item>
+    </string-array>
+
+    <string-array name="order_arrays">
+        <item>Order</item>
+        <item>Ascending</item>
+        <item>Descending</item>
+    </string-array>
 </resources>
