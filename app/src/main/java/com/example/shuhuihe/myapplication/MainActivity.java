@@ -1,10 +1,13 @@
 package com.example.shuhuihe.myapplication;
 
+import android.content.Intent;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
-import android.widget.ArrayAdapter;
+import android.view.View;
 import android.widget.AutoCompleteTextView;
-import android.widget.Spinner;
+import android.widget.Button;
+import android.widget.EditText;
+import android.widget.Toast;
 
 import java.util.ArrayList;
 
@@ -19,6 +22,7 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
 
         final AutoCompleteTextView searchStock = findViewById(R.id.autoCompleteTextView);
+        final Button getQuote = (Button) findViewById(R.id.getQuoteButton);
 
         AutoCompleteAdaptor autoCompleteAdaptor = new AutoCompleteAdaptor(this, R.layout.list_company, company_list);
         searchStock.setAdapter(autoCompleteAdaptor);
@@ -26,16 +30,18 @@ public class MainActivity extends AppCompatActivity {
         //searchStock.showDropDown();
 
 
-
-//        Spinner dropdown = (Spinner)findViewById(R.id.spinner1);
-//        String[] items = new String[]{"1", "2", "three"};
-//        ArrayAdapter<String> adapter = new ArrayAdapter<String>(this, android.R.layout.simple_spinner_dropdown_item, items);
-//        dropdown.setAdapter(adapter);
-
-
-    }
-
-    public void getQuote() {
-        
+        getQuote.setOnClickListener(new View.OnClickListener() {
+            public void onClick(View v) {
+                EditText companySymbol = (EditText) findViewById(R.id.autoCompleteTextView);
+                String symbol = companySymbol.getText().toString();
+                if (!symbol.matches(".*[a-zA-z].*")) {
+                    Toast.makeText(getApplicationContext(), "Please enter a stock name or symbol", Toast.LENGTH_SHORT).show();
+                } else {
+                    Intent activityChangeIntent = new Intent(MainActivity.this, StockDetailActivity.class);
+                    activityChangeIntent.putExtra("symbol", symbol);
+                    MainActivity.this.startActivity(activityChangeIntent);
+                }
+            }
+        });
     }
 }

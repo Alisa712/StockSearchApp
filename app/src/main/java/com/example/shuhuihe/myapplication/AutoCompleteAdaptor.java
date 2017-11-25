@@ -7,7 +7,7 @@ import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.Filter;
 import android.widget.TextView;
-import android.app.Activity;
+
 
 import com.android.volley.Request;
 import com.android.volley.RequestQueue;
@@ -131,7 +131,6 @@ public class AutoCompleteAdaptor extends ArrayAdapter<String> {
                 autoDetails.setText(company);
             }
         }
-        // the view must be returned to our activity
         return v;
     }
 }
