@@ -6,6 +6,7 @@
 	<meta charset="UTF-8">
 	<meta name="viewport" content="width=device-width, initial-scale=1">
 
+	<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
 	<script src="http://ajax.googleapis.com/ajax/libs/angularjs/1.6.1/angular.js"></script>
 	<script src="http://ajax.googleapis.com/ajax/libs/angularjs/1.6.1/angular-animate.js"></script>
 	<script src="http://ajax.googleapis.com/ajax/libs/angularjs/1.6.1/angular-sanitize.js"></script>
@@ -28,7 +29,14 @@
 		}
 
 
-		function mainControl($scope, $http) {
+		function mainControl($scope, $http, $location) {
+
+			$scope.init = function() {
+				symbol = $location.absUrl().split('?')[1];
+				console.log(symbol);
+				console.log("Hello World!");
+				$scope.drawPrice(symbol);
+			}
 
 			$scope.drawPrice = function(symbol) {
 				$scope.quoteStockName = symbol;
@@ -134,7 +142,7 @@
 		}
     </script>
 </head>
-<body id="aaa" ng-controller="myController">
+<body id="aaa" ng-controller="myController" ng-init="init()">
 	<div id="chartsContainer"></div>
 </body>
 </html>

@@ -44,7 +44,7 @@ public class Stock_detail_curr extends Fragment {
     RequestQueue queue;
     private JSONObject timeSeriesDaily;
     private JSONArray jsonArray;
-    private String currentIndi;
+    private String currentIndi = "Default";
 
 
     @Override
@@ -106,20 +106,20 @@ public class Stock_detail_curr extends Fragment {
         webSettings.setJavaScriptEnabled(true);
         webSettings.setJavaScriptCanOpenWindowsAutomatically(true);
 
-        mWebView.loadUrl("file:///android_asset/huihui.html");
+        mWebView.loadUrl("file:///android_asset/huihui.html?"+symbol);
         //mWebView.addJavascriptInterface(new IJavascriptHandler(), "chartJS");
-        mWebView.setWebViewClient(new WebViewClient() {
-            @Override
-            public void onPageFinished(WebView view, String url) {
-                super.onPageFinished(view, url);
-                mWebView.evaluateJavascript("javascript:loadPrice('" + symbol + "')", new ValueCallback<String>() {
-                    @Override
-                    public void onReceiveValue(String s) {
-
-                    }
-                });
-            }
-        });
+//        mWebView.setWebViewClient(new WebViewClient() {
+//            @Override
+//            public void onPageFinished(WebView view, String url) {
+//                super.onPageFinished(view, url);
+//                mWebView.evaluateJavascript("(function(){loadPrice(\""+ symbol +"\");})();", new ValueCallback<String>() {
+//                    @Override
+//                    public void onReceiveValue(String s) {
+//                        Log.i("LoadWebView",s);
+//                    }
+//                });
+//            }
+//        });
     }
 
     private void requestStockData(String symbol) {
