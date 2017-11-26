@@ -90,7 +90,6 @@ public class Stock_detail_curr extends Fragment {
                     if (currentIndi != null) {
                         loadWebView(symbol, currentIndi);
                     }
-
                 }
             });
 
