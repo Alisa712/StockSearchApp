@@ -1,4 +1,5 @@
 <<<<<<< HEAD
+<<<<<<< HEAD
 <ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="fill_parent"
     android:layout_height="fill_parent"
@@ -122,6 +123,8 @@
 </ScrollView>
 
 =======
+=======
+>>>>>>> parent of fdc890d... add stock detail table in current page
 <android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
@@ -143,5 +146,9 @@
         tools:layout_constraintLeft_creator="1"
         tools:layout_constraintTop_creator="1" />
 
+<<<<<<< HEAD
+</android.support.constraint.ConstraintLayout>
+>>>>>>> parent of fdc890d... add stock detail table in current page
+=======
 </android.support.constraint.ConstraintLayout>
 >>>>>>> parent of fdc890d... add stock detail table in current page
