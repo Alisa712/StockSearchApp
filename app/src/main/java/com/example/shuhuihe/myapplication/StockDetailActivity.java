@@ -118,7 +118,7 @@ public class StockDetailActivity extends AppCompatActivity {
         @Override
         public View onCreateView(LayoutInflater inflater, ViewGroup container,
                                  Bundle savedInstanceState) {
-            View rootView = inflater.inflate(R.layout.fragment_stock_detail_current, container, false);
+            View rootView = inflater.inflate(R.layout.fragment_base, container, false);
             TextView textView = (TextView) rootView.findViewById(R.id.section_label);
             textView.setText(getString(R.string.section_format, getArguments().getInt(ARG_SECTION_NUMBER)));
             return rootView;
@@ -139,7 +139,17 @@ public class StockDetailActivity extends AppCompatActivity {
         public Fragment getItem(int position) {
             // getItem is called to instantiate the fragment for the given page.
             // Return a PlaceholderFragment (defined as a static inner class below).
-            return PlaceholderFragment.newInstance(position + 1);
+            //return PlaceholderFragment.newInstance(position + 1);
+            switch (position) {
+                case 0:
+                    return new Stock_detail_curr();
+                case 1:
+                    return new Stock_detail_his();
+                case 2:
+                    return new Stock_detail_news();
+                default:
+                    return null;
+            }
         }
 
         @Override
