@@ -1,0 +1,140 @@
+
+<!DOCTYPE html>
+<html ng-app="myModule">
+<head>
+	<style></style>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+
+	<script src="http://ajax.googleapis.com/ajax/libs/angularjs/1.6.1/angular.js"></script>
+	<script src="http://ajax.googleapis.com/ajax/libs/angularjs/1.6.1/angular-animate.js"></script>
+	<script src="http://ajax.googleapis.com/ajax/libs/angularjs/1.6.1/angular-sanitize.js"></script>
+	<script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.6.1/angular-aria.min.js"></script>
+	<script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.6.1/angular-messages.min.js"></script>
+
+	<script src="https://code.highcharts.com/stock/highstock.js"></script>
+    <script src="https://code.highcharts.com/modules/exporting.js"></script>
+
+    <script>
+    	var preURL = "http://shuhuihe571hw8-env.us-east-2.elasticbeanstalk.com";
+
+		var app = angular.module("myModule", ['ngAnimate','ngSanitize']);
+		app.controller("myController", mainControl);
+
+
+		function loadPrice(symbol) {
+			var scope = angular.element($('#aaa')).scope();
+			scope.drawPrice(symbol);
+		}
+
+
+		function mainControl($scope, $http) {
+
+			$scope.drawPrice = function(symbol) {
+				$scope.quoteStockName = symbol;
+				$scope.datesCollection = [];
+				$scope.formattedDates =[];
+				$scope.closePrice = [];
+				$scope.volumeData = [];
+				$scope.error = false;
+				$scope.errorInfo = {};
+				$scope.chartsInfo = {};
+
+
+
+
+
+				URL = preURL+"/stock/query";
+				var params = {symbol: $scope.quoteStockName, function: "TIME_SERIES_DAILY", outputsize: "full"};
+				$http.get(URL, {params: params}).then(function(res) {
+					try {
+						var timeSeriesDaily = [];
+						var timeSet = res.data["Time Series (Daily)"]; // error would occur
+						angular.forEach(timeSet, function(value, key) {
+						  	this.push(value);
+						  	$scope.datesCollection.push(key);
+						}, timeSeriesDaily);
+
+						for (var i = 120; i >= 0; i--) {
+							var dates  = $scope.datesCollection[i];
+							var formatted = (dates.split('-').join('/')).substring(5,10);
+							$scope.formattedDates.push(formatted);
+							$scope.closePrice.push(parseFloat(timeSeriesDaily[i]["4. close"]));
+							$scope.volumeData.push(parseInt(timeSeriesDaily[i]["5. volume"]));
+
+
+							$scope.chartsInfo["Price"] = res.data;
+							$scope.quoted = true;
+
+						}
+					}
+					catch(e){
+						$scope.error = true;
+						$scope.errorInfo['Price'] = true;
+					}
+
+
+					var priceData = $scope.chartsInfo['Price'];
+					if (priceData) {
+							$scope.option1 = {					
+								    chart: {
+								       zoomType: 'x',
+								       height: 300
+								    },
+								    xAxis: {
+								        categories: $scope.formattedDates,
+								    },
+								    title: {
+								        text: $scope.quoteStockName+" "+"Stock Price and Volume",
+								    },
+								    subtitle: {
+								        text: '<a href="https://www.alphavantage.co/" target="_blank">Source: Alpha Vantage</a>',       
+								        useHTML: true
+								    },
+								    yAxis: [{			    	
+								        title: {
+								            text: 'Stock Price'
+								        },     
+								    }, {
+								        title: {
+								            text: 'Volume'
+								        },
+								        opposite: true
+								    }],
+								    plotOptions: {
+								        area: {
+								        	tooltip:{
+								            	valueDecimals: 2
+								    		},
+								            marker: {
+								                enabled: false
+								            },		
+								        }       
+								    },
+								    series: [{
+								    	type: 'area',
+								    	name: 'Price',
+								        data: $scope.closePrice,
+								        color: '#0000FF',
+								        fillOpacity: 0.1,
+								        yAxis: 0
+								    }, {
+								    	type: 'column',
+								    	name: 'Volume',
+								        data: $scope.volumeData,
+								        color: '#FF0000',
+								        yAxis: 1
+								    }, ]
+								};			
+								$scope.chart = Highcharts.chart('chartsContainer', $scope.option1);						
+					}
+					
+				});
+			}
+		}
+    </script>
+</head>
+<body id="aaa" ng-controller="myController">
+	<div id="chartsContainer"></div>
+</body>
+</html>

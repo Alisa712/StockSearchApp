@@ -91,7 +91,6 @@
                     android:layout_height="match_parent"
                     android:text="Indicators"
                     android:layout_weight="1"
-
                     android:textColor="#000000"
                     android:textSize="24sp" />
 
@@ -102,7 +101,8 @@
                     android:layout_height="match_parent"
                     android:entries="@array/chart_arrays" />
 
-                <TextView
+                <Button
+                    android:id="@+id/change_indicator"
                     android:layout_width="0dp"
                     android:layout_height="match_parent"
                     android:layout_weight="1"
@@ -110,6 +110,11 @@
                     android:textAlignment="center"
                     android:textSize="24sp" />
             </LinearLayout>
+
+            <WebView
+                android:id="@+id/webview"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content" />
 
         </LinearLayout>
     </android.widget.RelativeLayout>

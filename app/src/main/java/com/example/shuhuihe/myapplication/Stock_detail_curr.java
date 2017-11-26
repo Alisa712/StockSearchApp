@@ -7,7 +7,14 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.webkit.ValueCallback;
+import android.webkit.WebSettings;
+import android.webkit.WebView;
+import android.webkit.WebViewClient;
+import android.widget.AdapterView;
+import android.widget.Button;
 import android.widget.ListView;
+import android.widget.Spinner;
 
 import com.android.volley.DefaultRetryPolicy;
 import com.android.volley.Request;
@@ -31,12 +38,13 @@ import static java.lang.Integer.parseInt;
 public class Stock_detail_curr extends Fragment {
     private View rootview;
     private ListView listview;
+    private WebView mWebView;
     private String symbol;
     private final String URL = "http://shuhuihe571hw8-env.us-east-2.elasticbeanstalk.com/stock/query?function=TIME_SERIES_DAILY&outputsize=full&symbol=";
     RequestQueue queue;
     private JSONObject timeSeriesDaily;
-    //private JSONObject metaData;
     private JSONArray jsonArray;
+    private String currentIndi;
 
 
     @Override
@@ -55,13 +63,63 @@ public class Stock_detail_curr extends Fragment {
             String symbolTemp = getActivity().getIntent().getExtras().getString("symbol");
             symbol = symbolTemp.split("-")[0];
             //Log.e("stock name",symbol);
-
-
             requestStockData(symbol);
+
+            Spinner spinner = (Spinner) rootview.findViewById(R.id.change_chart);
+            spinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+                @Override
+                public void onItemSelected(AdapterView<?> adapterView, View view, int i, long l) {
+                    String selctedIndi = adapterView.getItemAtPosition(i).toString();
+                    Log.e("crrindi", currentIndi);
+                    Log.e("selectindi", selctedIndi);
+                    if (!currentIndi.equals(selctedIndi)) {
+                        currentIndi = selctedIndi;
+                    }
+                }
+
+                @Override
+                public void onNothingSelected(AdapterView<?> adapterView) {
+
+                }
+            });
+            mWebView = rootview.findViewById(R.id.webview);
+            Button button = rootview.findViewById(R.id.change_indicator);
+            button.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    if (currentIndi != null) {
+                        loadWebView(symbol, currentIndi);
+                    }
+
+                }
+            });
+
+            loadWebView(symbol, currentIndi);
 
 
         }
         return rootview;
+    }
+
+    private void loadWebView(final String symbol, String currentIndi) {
+        WebSettings webSettings = mWebView.getSettings();
+        webSettings.setJavaScriptEnabled(true);
+        webSettings.setJavaScriptCanOpenWindowsAutomatically(true);
+
+        mWebView.loadUrl("file:///android_asset/huihui.html");
+        //mWebView.addJavascriptInterface(new IJavascriptHandler(), "chartJS");
+        mWebView.setWebViewClient(new WebViewClient() {
+            @Override
+            public void onPageFinished(WebView view, String url) {
+                super.onPageFinished(view, url);
+                mWebView.evaluateJavascript("javascript:loadPrice('" + symbol + "')", new ValueCallback<String>() {
+                    @Override
+                    public void onReceiveValue(String s) {
+
+                    }
+                });
+            }
+        });
     }
 
     private void requestStockData(String symbol) {
@@ -174,7 +232,6 @@ public class Stock_detail_curr extends Fragment {
 
         jsonObjReq.setRetryPolicy(new DefaultRetryPolicy(5000,DefaultRetryPolicy.DEFAULT_MAX_RETRIES,DefaultRetryPolicy.DEFAULT_BACKOFF_MULT));
         queue.add(jsonObjReq);
-
     }
 
 }
