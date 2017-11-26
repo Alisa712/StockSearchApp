@@ -28,14 +28,25 @@
 			scope.drawPrice(symbol);
 		}
 
+		// function loadIndicator(symbol, indi) {
+		// 	var scope = angular.element($('#aaa')).scope();
+		// 	scope.drawIndi(symbol, indi);
+		// }
+
 
 		function mainControl($scope, $http, $location) {
 
 			$scope.init = function() {
-				symbol = $location.absUrl().split('?')[1];
-				console.log(symbol);
-				console.log("Hello World!");
-				$scope.drawPrice(symbol);
+
+				symbol = $location.absUrl().split('?')[1].split('&')[0];
+				indi = $location.absUrl().split('?')[1].split('&')[1];
+
+				if (currentIndi == 'Price') {
+					$scope.drawPrice(symbol);
+				} else {
+					$scope.drawIndi(symbol, indi);
+				}
+
 			}
 
 			$scope.drawPrice = function(symbol) {
@@ -138,6 +149,82 @@
 					}
 					
 				});
+			}
+
+			$scope.drawIndi = function(symbol, indi) {
+				var indiDataAll = [];
+				var dataSet = [];
+				var addCall = indi;
+				var indiEntry = "Technical Analysis: "+indi;
+
+				//$scope.error = false;
+				//$scope.errorInfo = {};
+				//$scope.chartsInfo = {};
+
+				var paramsIndicator = {symbol: symbol, function: indi, interval: "daily", time_period: 10, series_type: "close"};
+
+				$http.get(URL, {params: paramsIndicator}).then(function(res) {
+
+					$scope.chartsInfo[indi] = res.data;
+					if ($scope.chartsInfo[indi]) {
+
+						try{
+							var indiData = $scope.chartsInfo[indi];
+							var lastRefresh = indiData["Meta Data"]["3: Last Refreshed"];
+							var indicatorName = indiData["Meta Data"]["2: Indicator"];
+							var tecAnalysis = indiData[indiEntry];
+							if (tecAnalysis[lastRefresh]) {
+								var indiKeys = Object.keys(tecAnalysis[lastRefresh]);
+								for (var i = 120; i >0; i--) {
+									var indiDate = $scope.datesCollection[i]; //2017-mm-dd
+									var indiValues = tecAnalysis[indiDate];				
+									indiDataAll.push(indiValues);
+								}
+								var newestIndiValues = tecAnalysis[lastRefresh];
+								indiDataAll.push(newestIndiValues);
+								
+								var set = [];
+								for (var i = 0; i < indiKeys.length; i++) { //1-3
+									for (var j = 0; j < indiDataAll.length; j++) { //121
+										set.push(parseFloat(indiDataAll[j][indiKeys[i]]));
+									}
+									dataSet.push(set);
+									set = [];
+								}
+
+								$scope.option2 = {
+									chart: {
+						        		zoomType: 'x',
+					   					height: 300
+									},
+						    		xAxis: {
+						    			categories: $scope.formattedDates,
+						    		},
+						    		title: {
+					    				text: indicatorName
+									},
+									subtitle: {
+					    				text: '<a href="https://www.alphavantage.co/" target="_blank">Source: Alpha Vantage</a>',       
+					    				useHTML: true
+									},
+									yAxis: [{					
+									    title: {
+									        text: indi
+									    },   
+									}],
+								    series:[]		
+								};
+								for (var i = 0; i < dataSet.length; i++) {
+									$scope.option2.series.push({data: dataSet[i], name: symbol+" "+indiKeys[i]});
+								}	
+						        $scope.chart = Highcharts.chart('chartsContainer', $scope.option2);
+							} 
+						}
+						catch(e){
+							$scope.errorInfo[indi] = true;
+						}
+					}
+				});	
 			}
 		}
     </script>

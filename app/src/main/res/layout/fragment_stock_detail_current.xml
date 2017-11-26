@@ -111,10 +111,11 @@
                     android:textSize="24sp" />
             </LinearLayout>
 
+            <!--highchart graph-->
             <WebView
                 android:id="@+id/webview"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content" />
+                android:layout_height="500dp" />
 
         </LinearLayout>
     </android.widget.RelativeLayout>

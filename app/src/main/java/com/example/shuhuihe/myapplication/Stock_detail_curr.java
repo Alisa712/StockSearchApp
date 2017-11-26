@@ -106,7 +106,7 @@ public class Stock_detail_curr extends Fragment {
         webSettings.setJavaScriptEnabled(true);
         webSettings.setJavaScriptCanOpenWindowsAutomatically(true);
 
-        mWebView.loadUrl("file:///android_asset/huihui.html?"+symbol);
+        mWebView.loadUrl("file:///android_asset/huihui.html?"+symbol+"&"+currentIndi);
         //mWebView.addJavascriptInterface(new IJavascriptHandler(), "chartJS");
 //        mWebView.setWebViewClient(new WebViewClient() {
 //            @Override
