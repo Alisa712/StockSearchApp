@@ -40,8 +40,11 @@
 
 				symbol = $location.absUrl().split('?')[1].split('&')[0];
 				func = $location.absUrl().split('?')[1].split('&')[1];
-					$scope.drawPrice(symbol, func);
-				}
+
+
+				console.log(func);
+				$scope.drawPrice(symbol, func);
+			}
 
 
 			$scope.drawPrice = function(symbol, indi) {
@@ -53,6 +56,7 @@
 				$scope.error = false;
 				$scope.errorInfo = {};
 				$scope.chartsInfo = {};
+				$scope.hisData =[];
 
 
 
@@ -81,8 +85,19 @@
 							$scope.quoted = true;
 
 						}
-						if (indi != "Price") {
+
+						for (var i = Math.min(999, $scope.datesCollection.length-1); i >= 0; i--) {
+							var hisDate = new Date($scope.datesCollection[i]);
+							$scope.hisData.push([hisDate.getTime(), parseFloat(timeSeriesDaily[i]["4. close"])]);
+						}
+						console.log($scope.hisData);
+
+						if (indi != "Price" && indi != "historical") {
 							$scope.drawIndi(symbol, indi);
+							return;
+						}
+						if (indi == "historical") {
+							$scope.drawHis(symbol);
 							return;
 						}
 					}
@@ -225,10 +240,74 @@
 					}
 				});	
 			}
+
+			$scope.drawHis = function (symbol) {
+				console.log("into");
+			    $scope.hisChart = Highcharts.stockChart('hisContainer', {
+			        title: {
+			            text: symbol+" "+"Stock Value",
+			        },
+			        subtitle: {
+			            text: '<a href="https://www.alphavantage.co/" target="_blank">Source: Alpha Vantage</a>',       
+		    			useHTML: true
+			        },
+			        xAxis: {
+			        	type: 'datetime'
+			        },
+			        yAxis: {
+			        	title: {
+			        		text: "Stock Value"
+			        	}
+			        },
+			        rangeSelector: {
+			        	selected: 0,
+		                buttons: [{
+		                    type: 'week',
+		                    count: 1,
+		                    text: '1w',
+		                }, {
+		                    type: 'month',
+		                    count: 1,
+		                    text: '1m',
+		                }, {
+		                    type: 'month',
+		                    count: 3,
+		                    text: '3m'
+		                }, {
+		                    type: 'month',
+		                    count: 6,
+		                    text: '6m'
+		                }, {
+		                    type: 'ytd',
+		                    text: 'YTD'
+		                }, {
+		                    type: 'year',
+		                    count: 1,
+		                    text: '1y'
+		                }, {
+		                    type: 'all',
+		                    text: 'All'
+		                }]
+		            },
+		    		tooltip: {
+		    			split: false
+					},
+			        series: [{
+			            name: symbol,
+			            data: $scope.hisData,
+			            type: 'area',
+			            threshold: null,
+			            tooltip: {
+			                valueDecimals: 2
+			            }
+			        }],
+			    });
+			}
 		}
     </script>
 </head>
 <body id="aaa" ng-controller="myController" ng-init="init()">
 	<div id="chartsContainer"></div>
+	<div id="hisContainer"></div>
 </body>
 </html>
