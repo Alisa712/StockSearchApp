@@ -39,17 +39,12 @@
 			$scope.init = function() {
 
 				symbol = $location.absUrl().split('?')[1].split('&')[0];
-				indi = $location.absUrl().split('?')[1].split('&')[1];
-
-				if (currentIndi == 'Price') {
-					$scope.drawPrice(symbol);
-				} else {
-					$scope.drawIndi(symbol, indi);
+				func = $location.absUrl().split('?')[1].split('&')[1];
+					$scope.drawPrice(symbol, func);
 				}
 
-			}
 
-			$scope.drawPrice = function(symbol) {
+			$scope.drawPrice = function(symbol, indi) {
 				$scope.quoteStockName = symbol;
 				$scope.datesCollection = [];
 				$scope.formattedDates =[];
@@ -85,6 +80,10 @@
 							$scope.chartsInfo["Price"] = res.data;
 							$scope.quoted = true;
 
+						}
+						if (indi != "Price") {
+							$scope.drawIndi(symbol, indi);
+							return;
 						}
 					}
 					catch(e){

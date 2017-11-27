@@ -7,7 +7,6 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.webkit.ValueCallback;
 import android.webkit.WebSettings;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
@@ -15,27 +14,23 @@ import android.widget.AdapterView;
 import android.widget.Button;
 import android.widget.ListView;
 import android.widget.Spinner;
-
 import com.android.volley.DefaultRetryPolicy;
 import com.android.volley.Request;
 import com.android.volley.RequestQueue;
 import com.android.volley.Response;
 import com.android.volley.VolleyError;
-import com.android.volley.toolbox.JsonArrayRequest;
 import com.android.volley.toolbox.JsonObjectRequest;
 import com.android.volley.toolbox.Volley;
-
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
-
 import java.util.ArrayList;
 import java.util.Iterator;
 
-import static java.lang.Integer.parseInt;
 
 
 public class Stock_detail_curr extends Fragment {
+
     private View rootview;
     private ListView listview;
     private WebView mWebView;
@@ -44,7 +39,7 @@ public class Stock_detail_curr extends Fragment {
     RequestQueue queue;
     private JSONObject timeSeriesDaily;
     private JSONArray jsonArray;
-    private String currentIndi = "Default";
+    private String currentIndi;
 
 
     @Override
@@ -65,13 +60,14 @@ public class Stock_detail_curr extends Fragment {
             //Log.e("stock name",symbol);
             requestStockData(symbol);
 
+            currentIndi = "Price";
             Spinner spinner = (Spinner) rootview.findViewById(R.id.change_chart);
             spinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
                 @Override
                 public void onItemSelected(AdapterView<?> adapterView, View view, int i, long l) {
                     String selctedIndi = adapterView.getItemAtPosition(i).toString();
-                    Log.e("crrindi", currentIndi);
-                    Log.e("selectindi", selctedIndi);
+                    //Log.e("crrindi", currentIndi);
+                    //Log.e("selectindi", selctedIndi);
                     if (!currentIndi.equals(selctedIndi)) {
                         currentIndi = selctedIndi;
                     }
@@ -101,12 +97,20 @@ public class Stock_detail_curr extends Fragment {
         return rootview;
     }
 
+    @SuppressLint("SetJavaScriptEnabled")
     private void loadWebView(final String symbol, String currentIndi) {
         WebSettings webSettings = mWebView.getSettings();
         webSettings.setJavaScriptEnabled(true);
         webSettings.setJavaScriptCanOpenWindowsAutomatically(true);
 
-        mWebView.loadUrl("file:///android_asset/huihui.html?"+symbol+"&"+currentIndi);
+        mWebView.loadUrl("file:///android_asset/huihui.html?" + symbol.trim() + "&" + currentIndi);
+        mWebView.setWebViewClient(new WebViewClient() {
+            @Override
+            public void onPageFinished(WebView view, String url) {
+                super.onPageFinished(view, url);
+                //Log.d("Finish", "load done");
+            }
+        });
         //mWebView.addJavascriptInterface(new IJavascriptHandler(), "chartJS");
 //        mWebView.setWebViewClient(new WebViewClient() {
 //            @Override
@@ -128,7 +132,7 @@ public class Stock_detail_curr extends Fragment {
         jsonArray = new JSONArray();
 
         JsonObjectRequest jsonObjReq = new JsonObjectRequest
-                (Request.Method.GET, URL+stockSymbol, null,
+                (Request.Method.GET, URL + stockSymbol, null,
                         new Response.Listener<JSONObject>() {
                             @SuppressLint("DefaultLocale")
                             public void onResponse(JSONObject response) {
@@ -166,7 +170,7 @@ public class Stock_detail_curr extends Fragment {
                                     previousDatePrice = Float.parseFloat(jsonArray.getJSONObject(1).getString("4. close"));
                                     change = lastPrice - previousDatePrice;
                                     changePercent = change / previousDatePrice * 100;
-                                    changeDetail = String.format("%.2f", change)+"("+String.format("%.2f", changePercent)+"%)";
+                                    changeDetail = String.format("%.2f", change) + "(" + String.format("%.2f", changePercent) + "%)";
 
                                     open = Float.parseFloat(jsonArray.getJSONObject(0).getString("1. open"));
 
@@ -187,31 +191,31 @@ public class Stock_detail_curr extends Fragment {
 
                                     ArrayList<Detail> details = new ArrayList<>();
 
-                                    Detail symbol_detail = new Detail("Stock Symbol",stockSymbol);
+                                    Detail symbol_detail = new Detail("Stock Symbol", stockSymbol);
                                     details.add(symbol_detail);
 
-                                    Detail last_price = new Detail("Last Price",String.format("%.2f", lastPrice));
+                                    Detail last_price = new Detail("Last Price", String.format("%.2f", lastPrice));
                                     details.add(last_price);
 
-                                    Detail change_data = new Detail("Change",changeDetail,change>0);
+                                    Detail change_data = new Detail("Change", changeDetail, change > 0);
                                     details.add(change_data);
 
-                                    Detail time_stamp = new Detail("Timestamp",timestamp);
+                                    Detail time_stamp = new Detail("Timestamp", timestamp);
                                     details.add(time_stamp);
 
-                                    Detail open_data = new Detail("Open",String.format("%.2f", open));
+                                    Detail open_data = new Detail("Open", String.format("%.2f", open));
                                     details.add(open_data);
 
-                                    Detail close_data = new Detail("Close",String.format("%.2f", close));
+                                    Detail close_data = new Detail("Close", String.format("%.2f", close));
                                     details.add(close_data);
 
-                                    Detail days_range = new Detail("Day's Range",daysRange);
+                                    Detail days_range = new Detail("Day's Range", daysRange);
                                     details.add(days_range);
 
-                                    Detail volume_data = new Detail("Volume",volume);
+                                    Detail volume_data = new Detail("Volume", volume);
                                     details.add(volume_data);
 
-                                    DetailApater detailApater = new DetailApater(getContext(),R.layout.detail_item_layout,details);
+                                    DetailApater detailApater = new DetailApater(getContext(), R.layout.detail_item_layout, details);
                                     listview.setAdapter(detailApater);
 
                                     finished[0] = true;
@@ -227,10 +231,8 @@ public class Stock_detail_curr extends Fragment {
                                 error.printStackTrace();
                             }
                         });
-
         //while (!finished[0]) {}
-
-        jsonObjReq.setRetryPolicy(new DefaultRetryPolicy(5000,DefaultRetryPolicy.DEFAULT_MAX_RETRIES,DefaultRetryPolicy.DEFAULT_BACKOFF_MULT));
+        jsonObjReq.setRetryPolicy(new DefaultRetryPolicy(5000, DefaultRetryPolicy.DEFAULT_MAX_RETRIES, DefaultRetryPolicy.DEFAULT_BACKOFF_MULT));
         queue.add(jsonObjReq);
     }
 
