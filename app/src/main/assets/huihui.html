@@ -34,7 +34,7 @@
 		// }
 
 
-		function mainControl($scope, $http, $location) {
+		function mainControl($scope, $http, $location, $window) {
 
 			$scope.init = function() {
 
@@ -44,6 +44,7 @@
 
 				console.log(func);
 				$scope.drawPrice(symbol, func);
+
 			}
 
 
@@ -159,7 +160,9 @@
 								        yAxis: 1
 								    }, ]
 								};			
-								$scope.chart = Highcharts.chart('chartsContainer', $scope.option1);						
+								$scope.chart = Highcharts.chart('chartsContainer', $scope.option1);	
+															window.shuhuiJS.sendToAndroid(JSON.stringify($scope.option1));
+					
 					}
 					
 				});
@@ -232,6 +235,8 @@
 									$scope.option2.series.push({data: dataSet[i], name: symbol+" "+indiKeys[i]});
 								}	
 						        $scope.chart = Highcharts.chart('chartsContainer', $scope.option2);
+						        window.shuhuiJS.sendToAndroid(JSON.stringify($scope.option2));
+
 							} 
 						}
 						catch(e){

@@ -1,32 +1,43 @@
 package com.example.shuhuihe.myapplication;
 
 import android.annotation.SuppressLint;
+import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.webkit.JavascriptInterface;
 import android.webkit.WebSettings;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
 import android.widget.AdapterView;
 import android.widget.Button;
+import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.Spinner;
+
+import com.android.volley.AuthFailureError;
 import com.android.volley.DefaultRetryPolicy;
 import com.android.volley.Request;
 import com.android.volley.RequestQueue;
 import com.android.volley.Response;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.JsonObjectRequest;
+import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
+import com.facebook.share.model.ShareLinkContent;
+import com.facebook.share.widget.ShareDialog;
+
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
-import java.util.ArrayList;
-import java.util.Iterator;
 
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.Map;
 
 
 public class Stock_detail_curr extends Fragment {
@@ -34,12 +45,15 @@ public class Stock_detail_curr extends Fragment {
     private View rootview;
     private ListView listview;
     private WebView mWebView;
+    //private TextView mTextView;
     private String symbol;
     private final String URL = "http://shuhuihe571hw8-env.us-east-2.elasticbeanstalk.com/stock/query?function=TIME_SERIES_DAILY&outputsize=full&symbol=";
     RequestQueue queue;
     private JSONObject timeSeriesDaily;
     private JSONArray jsonArray;
     private String currentIndi;
+    private String option;
+    private String urlFB;
 
 
     @Override
@@ -57,7 +71,6 @@ public class Stock_detail_curr extends Fragment {
             queue = Volley.newRequestQueue(getContext());
             String symbolTemp = getActivity().getIntent().getExtras().getString("symbol");
             symbol = symbolTemp.split("-")[0];
-            //Log.e("stock name",symbol);
             requestStockData(symbol);
 
             currentIndi = "Price";
@@ -66,8 +79,6 @@ public class Stock_detail_curr extends Fragment {
                 @Override
                 public void onItemSelected(AdapterView<?> adapterView, View view, int i, long l) {
                     String selctedIndi = adapterView.getItemAtPosition(i).toString();
-                    //Log.e("crrindi", currentIndi);
-                    //Log.e("selectindi", selctedIndi);
                     if (!currentIndi.equals(selctedIndi)) {
                         currentIndi = selctedIndi;
                     }
@@ -75,7 +86,7 @@ public class Stock_detail_curr extends Fragment {
 
                 @Override
                 public void onNothingSelected(AdapterView<?> adapterView) {
-
+                    
                 }
             });
             mWebView = rootview.findViewById(R.id.webview);
@@ -91,17 +102,71 @@ public class Stock_detail_curr extends Fragment {
             });
 
             loadWebView(symbol, currentIndi);
+            ImageView facebook = rootview.findViewById(R.id.facebook);
+
+            facebook.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    getChartURL(option);
+
+                }
+            });
 
 
         }
         return rootview;
     }
 
+    private void getChartURL(String option) {
+        final String exportUrl = "http://export.highcharts.com/";
+        final String optionStr = option;
+
+
+        StringRequest stringRequest = new StringRequest
+                (Request.Method.POST, exportUrl,
+                        new Response.Listener<String>() {
+                            @Override
+                            public void onResponse(String response) {
+
+
+                                urlFB = response;
+                                Log.d("fblink", exportUrl + urlFB);
+                                ShareDialog shareDialog = new ShareDialog(getActivity());
+
+                                ShareLinkContent shareLinkContent = new ShareLinkContent.Builder()
+                                        .setContentUrl(Uri.parse(exportUrl + urlFB))
+                                        .build();
+                                shareDialog.show(shareLinkContent);
+
+                            }
+
+                        }, new Response.ErrorListener() {
+                    @Override
+                    public void onErrorResponse(VolleyError error) {
+                        //mTextView.setText("That didn't work!");
+                    }
+                }) {
+            @Override
+            protected Map<String, String> getParams() throws AuthFailureError {
+                Map<String, String> paramaters = new HashMap<>();
+                paramaters.put("async", "true");
+                paramaters.put("type", "image/png");
+                paramaters.put("options", optionStr);
+
+                return paramaters;
+            }
+        };
+
+        queue.add(stringRequest);
+    }
+
+
     @SuppressLint("SetJavaScriptEnabled")
     private void loadWebView(final String symbol, String currentIndi) {
         WebSettings webSettings = mWebView.getSettings();
         webSettings.setJavaScriptEnabled(true);
         webSettings.setJavaScriptCanOpenWindowsAutomatically(true);
+        mWebView.addJavascriptInterface(new JavaScriptInterfaceClass(), "shuhuiJS");
 
         mWebView.loadUrl("file:///android_asset/huihui.html?" + symbol.trim() + "&" + currentIndi);
         mWebView.setWebViewClient(new WebViewClient() {
@@ -158,6 +223,7 @@ public class Stock_detail_curr extends Fragment {
 
                                     //Log.e("time", timeSeriesDaily.toString());
                                     Iterator dates = timeSeriesDaily.keys();
+
                                     while (dates.hasNext()) {
                                         String date = (String) dates.next();
                                         jsonArray.put(timeSeriesDaily.get(date));
@@ -234,6 +300,15 @@ public class Stock_detail_curr extends Fragment {
         //while (!finished[0]) {}
         jsonObjReq.setRetryPolicy(new DefaultRetryPolicy(5000, DefaultRetryPolicy.DEFAULT_MAX_RETRIES, DefaultRetryPolicy.DEFAULT_BACKOFF_MULT));
         queue.add(jsonObjReq);
+    }
+
+    final class JavaScriptInterfaceClass {
+
+        @JavascriptInterface
+        public void sendToAndroid(String s) {
+            option = s;
+            Log.e("js", option);
+        }
     }
 
 }
