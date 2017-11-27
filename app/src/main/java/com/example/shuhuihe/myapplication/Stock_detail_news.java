@@ -1,36 +1,108 @@
 package com.example.shuhuihe.myapplication;
 
+import android.annotation.SuppressLint;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.webkit.WebView;
+import android.widget.ListView;
+import android.widget.TextView;
+
+import com.android.volley.Request;
+import com.android.volley.RequestQueue;
+import com.android.volley.Response;
+import com.android.volley.VolleyError;
+import com.android.volley.toolbox.JsonArrayRequest;
+import com.android.volley.toolbox.JsonObjectRequest;
+import com.android.volley.toolbox.Volley;
+
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.util.ArrayList;
 
 
-/**
- * A simple {@link Fragment} subclass.
- * Activities that contain this fragment must implement the
- * {@link Stock_detail_news.OnFragmentInteractionListener} interface
- * to handle interaction events.
- * Use the {@link Stock_detail_news#newInstance} factory method to
- * create an instance of this fragment.
- */
+
 public class Stock_detail_news extends Fragment {
 
-    public Stock_detail_news() {
-        // Required empty public constructor
-    }
+
+    private View rootview;
+    private ListView listview;
+    private WebView mWebView;
+    private String symbol;
+    private final String URL = "http://shuhuihe571hw8-env.us-east-2.elasticbeanstalk.com/stock/news?SYMBOL=";
+    RequestQueue queue;
+
+
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
     }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
-        return inflater.inflate(R.layout.fragment_stock_detail_news, container, false);
+        if (rootview == null) {
+            rootview = inflater.inflate(R.layout.fragment_stock_detail_news, container, false);
+            listview = rootview.findViewById(R.id.newsList);
+            queue = Volley.newRequestQueue(getContext());
+            String symbolTemp = getActivity().getIntent().getExtras().getString("symbol");
+            symbol = symbolTemp.split("-")[0].trim();
+
+            requestNewsData(symbol);
+        }
+        return rootview;
+    }
+
+    private void requestNewsData(String symbol) {
+        final String stockSymbol = symbol;
+
+        JsonArrayRequest jsonArrReq = new JsonArrayRequest
+                (Request.Method.GET, URL + stockSymbol, null,
+                        new Response.Listener<JSONArray>() {
+                            @Override
+                            public void onResponse(JSONArray response) {
+                                ArrayList<News> newsArrayList = new ArrayList<>();
+
+                                for (int i = 0; i < response.length(); i++) {
+                                    try {
+                                        String title;
+                                        String link;
+                                        String author;
+                                        String date;
+
+
+                                        JSONObject newsItem = response.getJSONObject(i);
+                                        title = newsItem.getString("title");
+                                        link = newsItem.getString("link");
+                                        author = "Author: " + newsItem.getString("author_name");
+                                        date = "Date: " + newsItem.getString("pubDate").substring(0, 26) + " PDT";
+
+
+                                        News news_detail = new News(title, link, author, date);
+                                        newsArrayList.add(news_detail);
+
+
+                                    } catch (JSONException e) {
+                                        e.printStackTrace();
+                                    }
+
+                                }
+                                NewsAdapter newsAdapter = new NewsAdapter(getContext(), R.layout.detail_news_layout, newsArrayList);
+                                listview.setAdapter(newsAdapter);
+                            }
+                        },
+                        new Response.ErrorListener() {
+                            @Override
+                            public void onErrorResponse(VolleyError error) {
+                                error.printStackTrace();
+                            }
+                        });
+        queue.add(jsonArrReq);
     }
 }
