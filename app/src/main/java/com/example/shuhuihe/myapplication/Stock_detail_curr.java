@@ -18,6 +18,7 @@ import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.Spinner;
 
+
 import com.android.volley.AuthFailureError;
 import com.android.volley.DefaultRetryPolicy;
 import com.android.volley.Request;
@@ -43,9 +44,10 @@ import java.util.Map;
 public class Stock_detail_curr extends Fragment {
 
     private View rootview;
+
     private ListView listview;
     private WebView mWebView;
-    //private TextView mTextView;
+
     private String symbol;
     private final String URL = "http://shuhuihe571hw8-env.us-east-2.elasticbeanstalk.com/stock/query?function=TIME_SERIES_DAILY&outputsize=full&symbol=";
     RequestQueue queue;
@@ -68,6 +70,7 @@ public class Stock_detail_curr extends Fragment {
         if (rootview == null) {
             rootview = inflater.inflate(R.layout.fragment_stock_detail_current, container, false);
             listview = rootview.findViewById(R.id.tableList);
+
             queue = Volley.newRequestQueue(getContext());
             String symbolTemp = getActivity().getIntent().getExtras().getString("symbol");
             symbol = symbolTemp.split("-")[0];
@@ -86,7 +89,7 @@ public class Stock_detail_curr extends Fragment {
 
                 @Override
                 public void onNothingSelected(AdapterView<?> adapterView) {
-                    
+
                 }
             });
             mWebView = rootview.findViewById(R.id.webview);

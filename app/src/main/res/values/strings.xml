@@ -4,8 +4,6 @@
     <string name="getQuote">Get Quote</string>
     <string name="clear">Clear</string>
     <string name="fav">Favorites</string>
-
-
     <string-array name="option_arrays">
         <item>Sort By</item>
         <item>Default</item>

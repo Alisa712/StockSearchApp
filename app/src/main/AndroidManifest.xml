@@ -23,7 +23,12 @@
         <activity
             android:name=".StockDetailActivity"
             android:label="@string/title_activity_stock_detail"
-            android:theme="@style/AppTheme.NoActionBar"></activity>
+            android:theme="@style/AppTheme.NoActionBar"
+            android:parentActivityName=".MainActivity">
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value="com.example.shuhuihe.myapplication.MainActivity"/>
+        </activity>
 
         <provider android:authorities="com.facebook.app.FacebookContentProvider{1955986657996915}"
             android:name="com.facebook.FacebookContentProvider"
