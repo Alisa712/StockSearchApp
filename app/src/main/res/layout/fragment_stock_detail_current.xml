@@ -56,7 +56,7 @@
                     android:src="@drawable/facebook" />
 
                 <ImageView
-                    android:id="@+id/empty"
+                    android:id="@+id/star"
                     android:layout_width="45dp"
                     android:layout_height="45dp"
                     android:layout_alignBottom="@+id/facebook"

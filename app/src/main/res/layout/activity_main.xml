@@ -117,11 +117,12 @@
         android:entries="@array/order_arrays" />
 
     <ListView
-        android:layout_width="wrap_content"
+        android:id="@+id/favorite_list"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_alignEnd="@+id/refresh"
-        android:layout_alignParentBottom="true"
-        android:layout_marginBottom="157dp" />
+        android:layout_below="@+id/spinner1"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="6dp" />
 
 
 </RelativeLayout>

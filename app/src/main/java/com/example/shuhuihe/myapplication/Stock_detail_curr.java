@@ -1,8 +1,11 @@
 package com.example.shuhuihe.myapplication;
 
 import android.annotation.SuppressLint;
+import android.content.Context;
+import android.content.SharedPreferences;
 import android.net.Uri;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.support.v4.app.Fragment;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -29,12 +32,14 @@ import com.android.volley.toolbox.JsonObjectRequest;
 import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
 import com.facebook.share.model.ShareLinkContent;
+import android.content.SharedPreferences;
 import com.facebook.share.widget.ShareDialog;
 
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.security.Key;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -46,6 +51,7 @@ public class Stock_detail_curr extends Fragment {
     private View rootview;
 
     private ListView listview;
+    //private ListView favListview;
     private WebView mWebView;
 
     private String symbol;
@@ -53,9 +59,18 @@ public class Stock_detail_curr extends Fragment {
     RequestQueue queue;
     private JSONObject timeSeriesDaily;
     private JSONArray jsonArray;
+    private JSONArray refreshArr;
     private String currentIndi;
     private String option;
     private String urlFB;
+    private String key;
+    private ArrayList<Favorite> details;
+
+    //private boolean isFavorited;
+    private JSONObject stockDetails;
+    //public static final String MyPREFERENCES = "MyPrefs";
+    SharedPreferences sharedpref;
+
 
 
     @Override
@@ -70,10 +85,14 @@ public class Stock_detail_curr extends Fragment {
         if (rootview == null) {
             rootview = inflater.inflate(R.layout.fragment_stock_detail_current, container, false);
             listview = rootview.findViewById(R.id.tableList);
+            //favListview = rootview.findViewById(R.id.favorite_list);
+            sharedpref = PreferenceManager.getDefaultSharedPreferences(getContext());
+
+
 
             queue = Volley.newRequestQueue(getContext());
             String symbolTemp = getActivity().getIntent().getExtras().getString("symbol");
-            symbol = symbolTemp.split("-")[0];
+            symbol = symbolTemp.split("-")[0].trim();
             requestStockData(symbol);
 
             currentIndi = "Price";
@@ -106,7 +125,6 @@ public class Stock_detail_curr extends Fragment {
 
             loadWebView(symbol, currentIndi);
             ImageView facebook = rootview.findViewById(R.id.facebook);
-
             facebook.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
@@ -115,12 +133,127 @@ public class Stock_detail_curr extends Fragment {
                 }
             });
 
+            ImageView star = rootview.findViewById(R.id.star);
+            star.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    try {
+                        changeFav(symbol);
+                    } catch (JSONException e) {
+                        e.printStackTrace();
+                    }
+                }
+            });
+
+            //sharedPref();
 
         }
         return rootview;
     }
+//    private void sharedPref () {
+//        SharedPreferences.Editor editor = sharedpref.edit();
+//        editor.clear();
+//        //editor.commit();
+//        editor.apply();
+//    }
+
+    private void changeFav(String symbol) throws JSONException {
+
+        if (sharedpref.contains(symbol)) {
+            SharedPreferences.Editor editor = sharedpref.edit();
+            editor.remove(symbol);
+            Log.d("REMOVE", "REMOVED!");
+            editor.apply();
+        } else {
+            addThisStock(symbol);
+        }
+//        if (stockDetails.getJSONObject(symbol) != null) {
+//            stockDetails.remove(symbol);
+//            SharedPreferences.Editor editor = sharedpref.edit();
+//            editor.putString("favorite", stockDetails.toString());
+//            editor.apply();
+//        } else {
+//            stockDetails.put(symbol, null);
+//
+//            favoritThisStock();
+//        }
+    }
+
+    private void addThisStock(final String symbol) {
+        refreshArr = new JSONArray();
+
+        JsonObjectRequest stockReq = new JsonObjectRequest
+                (Request.Method.GET, URL + symbol, null,
+                        new Response.Listener<JSONObject>() {
+                            @Override
+                            public void onResponse(JSONObject response) {
+                                try {
+                                    SharedPreferences.Editor editor = sharedpref.edit();
+
+                                    JSONObject stockInfo = new JSONObject();
+                                    JSONObject tsDaily;
+                                    Float lastPrice;
+                                    Float previousDatePrice;
+                                    Float change;
+                                    Float changePercent;
+                                    String changeDetail;
+                                    tsDaily = response.getJSONObject("Time Series (Daily)");
+                                    Iterator dates = tsDaily.keys();
+                                    while (dates.hasNext()) {
+                                        String date = (String) dates.next();
+                                        refreshArr.put(tsDaily.get(date));
+                                    }
+                                    lastPrice = Float.parseFloat(refreshArr.getJSONObject(0).getString("4. close"));
+                                    previousDatePrice = Float.parseFloat(refreshArr.getJSONObject(1).getString("4. close"));
+                                    change = lastPrice - previousDatePrice;
+                                    changePercent = change / previousDatePrice * 100;
+                                    changeDetail = String.format("%.2f", change) + "(" + String.format("%.2f", changePercent) + "%)";
+                                    stockInfo.put("stockFav", symbol);
+                                    stockInfo.put("priceFav", lastPrice.toString());
+                                    stockInfo.put("changeFav", changeDetail);
+                                    stockInfo.put("isIncreasing", change>0);
+
+                                    String stockInfoStr = stockInfo.toString();
+                                    Log.d("stockInfo", stockInfoStr);
+                                    editor.putString(symbol, stockInfoStr);
+                                    editor.apply();
+                                    Log.d("ADDED", "JSON");
+//                                    Favorite fav_detail = new Favorite(key, lastPrice.toString(),changeDetail, change>0);
+//                                    details.add(fav_detail);
+//
+//                                    FavoriteAdapter favoriteAdapter = new FavoriteAdapter(getContext(), R.layout.detail_fav_layout, details);
+//                                    listview.setAdapter(detailApater);
+//
+//                                    finished[0] = true;
+                                    String msg = sharedpref.getString(symbol, "FAILED");
+
+                                    Log.d("JSONLOCAL", msg);
+                                } catch (JSONException e) {
+                                    e.printStackTrace();
+//                                    finished[0] = true;
+                                }
+                            }
+                        },
+                        new Response.ErrorListener() {
+                            @Override
+                            public void onErrorResponse(VolleyError error) {
+                                error.printStackTrace();
+                            }
+                        });
+        stockReq.setRetryPolicy(new DefaultRetryPolicy(5000, DefaultRetryPolicy.DEFAULT_MAX_RETRIES, DefaultRetryPolicy.DEFAULT_BACKOFF_MULT));
+        queue.add(stockReq);
+
+
+    }
+
+
+
+
+
+
 
     private void getChartURL(String option) {
+
         final String exportUrl = "http://export.highcharts.com/";
         final String optionStr = option;
 
@@ -176,28 +309,17 @@ public class Stock_detail_curr extends Fragment {
             @Override
             public void onPageFinished(WebView view, String url) {
                 super.onPageFinished(view, url);
-                //Log.d("Finish", "load done");
             }
         });
-        //mWebView.addJavascriptInterface(new IJavascriptHandler(), "chartJS");
-//        mWebView.setWebViewClient(new WebViewClient() {
-//            @Override
-//            public void onPageFinished(WebView view, String url) {
-//                super.onPageFinished(view, url);
-//                mWebView.evaluateJavascript("(function(){loadPrice(\""+ symbol +"\");})();", new ValueCallback<String>() {
-//                    @Override
-//                    public void onReceiveValue(String s) {
-//                        Log.i("LoadWebView",s);
-//                    }
-//                });
-//            }
-//        });
     }
+
+
 
     private void requestStockData(String symbol) {
         final String stockSymbol = symbol;
         final Boolean finished[] = {false};
         jsonArray = new JSONArray();
+
 
         JsonObjectRequest jsonObjReq = new JsonObjectRequest
                 (Request.Method.GET, URL + stockSymbol, null,
@@ -224,16 +346,12 @@ public class Stock_detail_curr extends Fragment {
                                     refreshedTime = response.getJSONObject("Meta Data").getString("3. Last Refreshed");
                                     String currentDate = refreshedTime.substring(0, 10);
 
-                                    //Log.e("time", timeSeriesDaily.toString());
                                     Iterator dates = timeSeriesDaily.keys();
 
                                     while (dates.hasNext()) {
                                         String date = (String) dates.next();
                                         jsonArray.put(timeSeriesDaily.get(date));
                                     }
-
-
-                                    //Log.e("jsonarr", jsonArray.toString());
 
                                     lastPrice = Float.parseFloat(jsonArray.getJSONObject(0).getString("4. close"));
                                     previousDatePrice = Float.parseFloat(jsonArray.getJSONObject(1).getString("4. close"));
@@ -310,7 +428,7 @@ public class Stock_detail_curr extends Fragment {
         @JavascriptInterface
         public void sendToAndroid(String s) {
             option = s;
-            Log.e("js", option);
+            //Log.e("js", option);
         }
     }
 
