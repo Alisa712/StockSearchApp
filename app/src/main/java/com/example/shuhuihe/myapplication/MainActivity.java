@@ -45,7 +45,7 @@ public class MainActivity extends AppCompatActivity {
 
     private ArrayList<String> company_list = new ArrayList<>();
     private SharedPreferences sharedpref;
-    private JSONArray refreshArr;
+    //private JSONArray refreshArr;
     RequestQueue queue;
     private ArrayList<Favorite> details;
     private String URL;
@@ -69,7 +69,6 @@ public class MainActivity extends AppCompatActivity {
 //        SharedPreferences.Editor editor = sharedpref.edit();
 //        editor.clear();
 //        editor.commit();
-
         ArrayList<Favorite> favList = new ArrayList<>();
         Map<String, ?> allEntries = sharedpref.getAll();
         allEntries.remove("com.facebook.appevents.SourceApplicationInfo.callingApplicationPackage");
@@ -90,11 +89,8 @@ public class MainActivity extends AppCompatActivity {
             Favorite favItem = new Favorite(symbol, price, change, up);
             favList.add(favItem);
 
-//            Log.d("map symbols", symbol);
-//            Log.d("ps", price.toString());
-//            Log.d("ch", change.toString());
-//            Log.d("b", up);
         }
+
         ListView favListview = findViewById(R.id.favorite_list);
         FavoriteAdapter favAdapter = new FavoriteAdapter(this, R.layout.detail_fav_layout, favList);
         favListview.setAdapter(favAdapter);
@@ -123,12 +119,10 @@ public class MainActivity extends AppCompatActivity {
     private void refreshAllStock() {
         URL = "http://shuhuihe571hw8-env.us-east-2.elasticbeanstalk.com/stock/query?function=TIME_SERIES_DAILY&outputsize=full&symbol=";
         final Map<String, ?> allEntries = sharedpref.getAll();
-        refreshArr = new JSONArray();
         details = new ArrayList<Favorite>();
         final boolean[] finishedAll = {false};
 
-        int i = 0;
-        //Map<String, ?> allEntries = sharedpref.getAll();
+
         allEntries.remove("com.facebook.appevents.SourceApplicationInfo.callingApplicationPackage");
         allEntries.remove("com.facebook.appevents.SessionInfo.sessionStartTime");
         allEntries.remove("com.facebook.appevents.SessionInfo.interruptionCount");
@@ -136,18 +130,12 @@ public class MainActivity extends AppCompatActivity {
         allEntries.remove("com.facebook.appevents.SessionInfo.sessionId");
         allEntries.remove("com.facebook.appevents.SessionInfo.sessionEndTime");
         for (Map.Entry<String, ?> entry : allEntries.entrySet()) {
-            //int i = 0;
 
             String info = entry.getValue().toString();
             JsonObject jobj = new Gson().fromJson(info, JsonObject.class);
             final String symbol = jobj.get("stockFav").getAsString();
             Log.d("SYMBOL", symbol);
-
-
-
-
             final Boolean finished[] = {false};
-
             Log.d("Before", "REQ");
             JsonObjectRequest jsonObjReq = new JsonObjectRequest
                     (Request.Method.GET, URL + symbol, null,
@@ -156,6 +144,7 @@ public class MainActivity extends AppCompatActivity {
                                 public void onResponse(JSONObject response) {
                                     try {
                                         Log.d("INTO", "REQUEST");
+                                        JSONArray refreshArr = new JSONArray();
                                         JSONObject tsDaily;
                                         Float lastPrice;
                                         Float previousDatePrice;
@@ -173,16 +162,14 @@ public class MainActivity extends AppCompatActivity {
                                         change = lastPrice - previousDatePrice;
                                         changePercent = change / previousDatePrice * 100;
                                         changeDetail = String.format("%.2f", change) + "(" + String.format("%.2f", changePercent) + "%)";
-                                        Favorite fav_detail = new Favorite(symbol, lastPrice, changeDetail, change > 0);
-                                        details.add(fav_detail);
+                                        details.add(new Favorite(symbol, lastPrice, changeDetail, change > 0));
                                         finished[0] = true;
                                         String t = "hi "+details.size();
-                                        Log.d("detailsize", t);
+                                        Log.d("detailsize", details.toString());
                                         Log.d("finised", finished[0].toString());
                                         if (details.size() == allEntries.size()) {
                                             finishedAll[0] = true;
                                             resetList();
-
                                         }
                                     } catch (JSONException e) {
                                         e.printStackTrace();
@@ -201,23 +188,20 @@ public class MainActivity extends AppCompatActivity {
             queue.add(jsonObjReq);
 //            while (!finished[0]) {
 //            }
-            i++;
-
             Log.d("stock", "CALLED");
 
         }
-        String testsize = "hi "+allEntries.size();
-
+        String testsize = "hi " + allEntries.size();
         Log.d("allentrySzie", testsize);
 
     }
 
     private void resetList() {
 
-            Log.d("INTO", "ALL");
-            ListView favListview2 = findViewById(R.id.favorite_list);
-            FavoriteAdapter favAdapter2 = new FavoriteAdapter(this, R.layout.detail_fav_layout, details);
-            favListview2.setAdapter(favAdapter2);
+        Log.d("INTO", "ALL");
+        ListView favListview2 = findViewById(R.id.favorite_list);
+        FavoriteAdapter favAdapter2 = new FavoriteAdapter(this, R.layout.detail_fav_layout, details);
+        favListview2.setAdapter(favAdapter2);
 
     }
 
