@@ -119,10 +119,9 @@ public class MainActivity extends AppCompatActivity {
     private void refreshAllStock() {
         URL = "http://shuhuihe571hw8-env.us-east-2.elasticbeanstalk.com/stock/query?function=TIME_SERIES_DAILY&outputsize=full&symbol=";
         final Map<String, ?> allEntries = sharedpref.getAll();
+        final SharedPreferences.Editor editor = sharedpref.edit();
         details = new ArrayList<Favorite>();
         final boolean[] finishedAll = {false};
-
-
         allEntries.remove("com.facebook.appevents.SourceApplicationInfo.callingApplicationPackage");
         allEntries.remove("com.facebook.appevents.SessionInfo.sessionStartTime");
         allEntries.remove("com.facebook.appevents.SessionInfo.interruptionCount");
@@ -143,9 +142,11 @@ public class MainActivity extends AppCompatActivity {
                                 @Override
                                 public void onResponse(JSONObject response) {
                                     try {
+                                        editor.clear();
                                         Log.d("INTO", "REQUEST");
                                         JSONArray refreshArr = new JSONArray();
                                         JSONObject tsDaily;
+                                        JSONObject stockInfo = new JSONObject();
                                         Float lastPrice;
                                         Float previousDatePrice;
                                         Float change;
@@ -162,7 +163,20 @@ public class MainActivity extends AppCompatActivity {
                                         change = lastPrice - previousDatePrice;
                                         changePercent = change / previousDatePrice * 100;
                                         changeDetail = String.format("%.2f", change) + "(" + String.format("%.2f", changePercent) + "%)";
+
+
+                                        stockInfo.put("stockFav", symbol);
+                                        stockInfo.put("priceFav", lastPrice.toString());
+                                        stockInfo.put("changeFav", changeDetail);
+                                        stockInfo.put("isIncreasing", change>0);
+
+                                        String stockInfoStr = stockInfo.toString();
+                                        Log.d("stockInfo", stockInfoStr);
+                                        editor.putString(symbol, stockInfoStr);
+                                        editor.apply();
+
                                         details.add(new Favorite(symbol, lastPrice, changeDetail, change > 0));
+
                                         finished[0] = true;
                                         String t = "hi "+details.size();
                                         Log.d("detailsize", details.toString());
@@ -184,7 +198,7 @@ public class MainActivity extends AppCompatActivity {
                                 }
                             });
 
-            jsonObjReq.setRetryPolicy(new DefaultRetryPolicy(20000, DefaultRetryPolicy.DEFAULT_MAX_RETRIES, DefaultRetryPolicy.DEFAULT_BACKOFF_MULT));
+            jsonObjReq.setRetryPolicy(new DefaultRetryPolicy(5000, DefaultRetryPolicy.DEFAULT_MAX_RETRIES, DefaultRetryPolicy.DEFAULT_BACKOFF_MULT));
             queue.add(jsonObjReq);
 //            while (!finished[0]) {
 //            }
