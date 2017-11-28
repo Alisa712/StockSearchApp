@@ -14,12 +14,15 @@ import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.Toast;
 
+import com.android.volley.AuthFailureError;
 import com.android.volley.DefaultRetryPolicy;
 import com.android.volley.Request;
 import com.android.volley.RequestQueue;
 import com.android.volley.Response;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.JsonObjectRequest;
+import com.android.volley.toolbox.StringRequest;
+import com.android.volley.toolbox.Volley;
 import com.google.gson.Gson;
 
 
@@ -62,6 +65,7 @@ public class MainActivity extends AppCompatActivity {
         searchStock.setThreshold(1);
 
         sharedpref = PreferenceManager.getDefaultSharedPreferences(this);
+        queue = Volley.newRequestQueue(this);
 //        SharedPreferences.Editor editor = sharedpref.edit();
 //        editor.clear();
 //        editor.commit();
@@ -118,7 +122,10 @@ public class MainActivity extends AppCompatActivity {
 
     private void refreshAllStock() {
         URL = "http://shuhuihe571hw8-env.us-east-2.elasticbeanstalk.com/stock/query?function=TIME_SERIES_DAILY&outputsize=full&symbol=";
-        Map<String, ?> allEntries = sharedpref.getAll();
+        final Map<String, ?> allEntries = sharedpref.getAll();
+        refreshArr = new JSONArray();
+        details = new ArrayList<Favorite>();
+        final boolean[] finishedAll = {false};
 
         int i = 0;
         //Map<String, ?> allEntries = sharedpref.getAll();
@@ -137,10 +144,11 @@ public class MainActivity extends AppCompatActivity {
             Log.d("SYMBOL", symbol);
 
 
-            refreshArr = new JSONArray();
-            details = new ArrayList<Favorite>();
+
 
             final Boolean finished[] = {false};
+
+            Log.d("Before", "REQ");
             JsonObjectRequest jsonObjReq = new JsonObjectRequest
                     (Request.Method.GET, URL + symbol, null,
                             new Response.Listener<JSONObject>() {
@@ -168,7 +176,14 @@ public class MainActivity extends AppCompatActivity {
                                         Favorite fav_detail = new Favorite(symbol, lastPrice, changeDetail, change > 0);
                                         details.add(fav_detail);
                                         finished[0] = true;
+                                        String t = "hi "+details.size();
+                                        Log.d("detailsize", t);
                                         Log.d("finised", finished[0].toString());
+                                        if (details.size() == allEntries.size()) {
+                                            finishedAll[0] = true;
+                                            resetList();
+
+                                        }
                                     } catch (JSONException e) {
                                         e.printStackTrace();
                                         finished[0] = true;
@@ -182,16 +197,28 @@ public class MainActivity extends AppCompatActivity {
                                 }
                             });
 
-            jsonObjReq.setRetryPolicy(new DefaultRetryPolicy(5000, DefaultRetryPolicy.DEFAULT_MAX_RETRIES, DefaultRetryPolicy.DEFAULT_BACKOFF_MULT));
+            jsonObjReq.setRetryPolicy(new DefaultRetryPolicy(20000, DefaultRetryPolicy.DEFAULT_MAX_RETRIES, DefaultRetryPolicy.DEFAULT_BACKOFF_MULT));
             queue.add(jsonObjReq);
-            while (!finished[0]) {};
+//            while (!finished[0]) {
+//            }
             i++;
+
+            Log.d("stock", "CALLED");
+
         }
-        if (i == allEntries.size()) {
-            ListView favListview2= findViewById(R.id.favorite_list);
+        String testsize = "hi "+allEntries.size();
+
+        Log.d("allentrySzie", testsize);
+
+    }
+
+    private void resetList() {
+
+            Log.d("INTO", "ALL");
+            ListView favListview2 = findViewById(R.id.favorite_list);
             FavoriteAdapter favAdapter2 = new FavoriteAdapter(this, R.layout.detail_fav_layout, details);
             favListview2.setAdapter(favAdapter2);
-        }
+
     }
 
 }
