@@ -1,10 +1,14 @@
 package com.example.shuhuihe.myapplication;
 
+import android.support.annotation.NonNull;
+
+import java.util.Comparator;
+
 /**
  * Created by shuhuihe on 11/27/17.
  */
 
-public class Favorite {
+public class Favorite implements Comparable<Favorite> {
     String symbol;
     Float price;
     Float change;
@@ -14,6 +18,7 @@ public class Favorite {
     boolean isIncresing;
 
     public Favorite(String symbol, Float price, Float change, Float changePercent, Long timestamp, String changeInfo, boolean isIncresing) {
+        super();
         this.symbol = symbol;
         this.price = price;
         this.change = change;
@@ -78,4 +83,100 @@ public class Favorite {
     public void setIncresing(boolean incresing) {
         isIncresing = incresing;
     }
+
+    @Override
+    public int compareTo(@NonNull Favorite favorite) {
+        return 0;
+    }
+
+    public static Comparator<Favorite> defaultComp = new Comparator<Favorite>() {
+
+        @Override
+        public int compare(Favorite t1, Favorite t2) {
+            long timestamp1 = t1.getTimestamp();
+            long timestamp2 = t2.getTimestamp();
+
+            return timestamp1 > timestamp2 ? 1 : -1;
+
+        }
+    };
+
+    public static Comparator<Favorite> symbolComp = new Comparator<Favorite>() {
+
+        @Override
+        public int compare(Favorite t1, Favorite t2) {
+            String symbol1 = t1.getSymbol().toUpperCase();
+            String symbol2 = t2.getSymbol().toUpperCase();
+            return symbol1.compareTo(symbol2);
+        }
+    };
+
+    public static Comparator<Favorite> symbolCompReverse = new Comparator<Favorite>() {
+        @Override
+        public int compare(Favorite t1, Favorite t2) {
+            String symbol1 = t1.getSymbol().toUpperCase();
+            String symbol2 = t2.getSymbol().toUpperCase();
+            return symbol2.compareTo(symbol1);
+        }
+    };
+
+    public static Comparator<Favorite> priceComp = new Comparator<Favorite>() {
+        @Override
+        public int compare(Favorite t1, Favorite t2) {
+            Float price1 = t1.getPrice();
+            Float price2 = t2.getPrice();
+
+            return price1>price2 ? 1 : -1;
+        }
+    };
+
+    public static Comparator<Favorite> priceCompReverse = new Comparator<Favorite>() {
+        @Override
+        public int compare(Favorite t1, Favorite t2) {
+            Float price1 = t1.getPrice();
+            Float price2 = t2.getPrice();
+
+            return price1<price2 ? 1 : -1;
+        }
+    };
+
+    public static Comparator<Favorite> changeComp = new Comparator<Favorite>() {
+        @Override
+        public int compare(Favorite t1, Favorite t2) {
+            Float price1 = t1.getChange();
+            Float price2 = t2.getChange();
+
+            return price1>price2 ? 1 : -1;
+        }
+    };
+
+    public static Comparator<Favorite> changeCompReverse = new Comparator<Favorite>() {
+        @Override
+        public int compare(Favorite t1, Favorite t2) {
+            Float price1 = t1.getChange();
+            Float price2 = t2.getChange();
+
+            return price1<price2 ? 1 : -1;
+        }
+    };
+
+    public static Comparator<Favorite> changePercentComp = new Comparator<Favorite>() {
+        @Override
+        public int compare(Favorite t1, Favorite t2) {
+            Float price1 = t1.getChangePercent();
+            Float price2 = t2.getChangePercent();
+
+            return price1>price2 ? 1 : -1;
+        }
+    };
+
+    public static Comparator<Favorite> changePercentCompReverse = new Comparator<Favorite>() {
+        @Override
+        public int compare(Favorite t1, Favorite t2) {
+            Float price1 = t1.getChangePercent();
+            Float price2 = t2.getChangePercent();
+
+            return price1<price2 ? 1 : -1;
+        }
+    };
 }

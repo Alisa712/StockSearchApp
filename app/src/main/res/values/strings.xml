@@ -5,7 +5,7 @@
     <string name="clear">Clear</string>
     <string name="fav">Favorites</string>
     <string-array name="option_arrays">
-        <item>Sort By</item>
+        <item>Sort by</item>
         <item>Default</item>
         <item>Symbol</item>
         <item>Price</item>

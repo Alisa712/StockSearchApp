@@ -91,6 +91,8 @@ public class AutoCompleteAdaptor extends ArrayAdapter<String> {
 
                     queue.add(jsArrReq);
 
+                } else {
+                    finished[0] = true;
                 }
                 while (!finished[0]) {}
                 return filterResults;
