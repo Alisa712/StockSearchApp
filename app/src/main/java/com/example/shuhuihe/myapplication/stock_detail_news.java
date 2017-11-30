@@ -1,12 +1,15 @@
 package com.example.shuhuihe.myapplication;
 
 import android.annotation.SuppressLint;
+import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.webkit.WebView;
+import android.widget.AdapterView;
 import android.widget.ListView;
 import android.widget.TextView;
 
@@ -50,6 +53,7 @@ public class Stock_detail_news extends Fragment {
         if (rootview == null) {
             rootview = inflater.inflate(R.layout.fragment_stock_detail_news, container, false);
             listview = rootview.findViewById(R.id.newsList);
+
             queue = Volley.newRequestQueue(getContext());
             String symbolTemp = getActivity().getIntent().getExtras().getString("symbol");
             symbol = symbolTemp.split("-")[0].trim();
@@ -67,7 +71,7 @@ public class Stock_detail_news extends Fragment {
                         new Response.Listener<JSONArray>() {
                             @Override
                             public void onResponse(JSONArray response) {
-                                ArrayList<News> newsArrayList = new ArrayList<>();
+                                final ArrayList<News> newsArrayList = new ArrayList<>();
 
                                 for (int i = 0; i < response.length(); i++) {
                                     try {
@@ -91,10 +95,17 @@ public class Stock_detail_news extends Fragment {
                                     } catch (JSONException e) {
                                         e.printStackTrace();
                                     }
-
                                 }
                                 NewsAdapter newsAdapter = new NewsAdapter(getContext(), R.layout.detail_news_layout, newsArrayList);
                                 listview.setAdapter(newsAdapter);
+                                listview.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+                                    @Override
+                                    public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
+                                       News detail_item = newsArrayList.get(i);
+                                        Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(detail_item.getLink()));
+                                        startActivity(intent);
+                                    }
+                                });
                             }
                         },
                         new Response.ErrorListener() {

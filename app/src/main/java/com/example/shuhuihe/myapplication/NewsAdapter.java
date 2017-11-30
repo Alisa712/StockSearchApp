@@ -1,6 +1,9 @@
 package com.example.shuhuihe.myapplication;
 
 import android.content.Context;
+import android.content.Intent;
+import android.graphics.Color;
+import android.net.Uri;
 import android.text.Html;
 import android.text.method.LinkMovementMethod;
 import android.view.LayoutInflater;
@@ -19,16 +22,18 @@ import java.util.List;
 public class NewsAdapter extends ArrayAdapter<News> {
 
     private int resourceId;
+    private Context mContext;
 
     public NewsAdapter (Context context, int textViewResourceId,
                          List<News> objects) {
         super(context, textViewResourceId, objects);
         resourceId = textViewResourceId;
+        mContext=context;
     }
 
     @Override
-    public View getView(int position, View convertView, ViewGroup parent) {
-        News detail_item = getItem(position);
+    public View getView(final int position, View convertView, ViewGroup parent) {
+        final News detail_item = getItem(position);
         View view;
         ViewHolder viewHolder;
         if (convertView == null) {
@@ -42,11 +47,11 @@ public class NewsAdapter extends ArrayAdapter<News> {
             view = convertView;
             viewHolder = (ViewHolder) view.getTag();
         }
-        //viewHolder.newsTitle.setText(detail_item.getTitle());
-        viewHolder.newsTitle.setClickable(true);
-        viewHolder.newsTitle.setMovementMethod(LinkMovementMethod.getInstance());
-        String text = "<a href='"+detail_item.getLink()+"'>"+detail_item.getTitle()+"</a>";
-        viewHolder.newsTitle.setText(Html.fromHtml(text));
+        viewHolder.newsTitle.setText(detail_item.getTitle());
+//        viewHolder.newsTitle.setTextColor(Color.BLACK);
+//        viewHolder.newsTitle.setMovementMethod(LinkMovementMethod.getInstance());
+//        String text = "<a href='"+detail_item.getLink()+"'"+"style='text-decoration: none;'"+"'>"+detail_item.getTitle()+"</a>";
+       // viewHolder.newsTitle.setText(Html.fromHtml(text));
         viewHolder.newsAuthor.setText(detail_item.getAuthor());
         viewHolder.newsDate.setText(detail_item.getDate());
 

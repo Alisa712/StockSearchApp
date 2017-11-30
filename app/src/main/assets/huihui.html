@@ -2,7 +2,20 @@
 <!DOCTYPE html>
 <html ng-app="myModule">
 <head>
-	<style></style>
+	<style>
+	a:link {
+		text-decoration: none;
+		color: blue;
+	}
+	a:visited {
+		text-decoration: none;
+		color: blue;
+	}
+
+		a:hover{
+			text-decoration: none;
+		}
+	</style>
 	<meta charset="UTF-8">
 	<meta name="viewport" content="width=device-width, initial-scale=1">
 
@@ -270,10 +283,6 @@
 			        rangeSelector: {
 			        	selected: 0,
 		                buttons: [{
-		                    type: 'week',
-		                    count: 1,
-		                    text: '1w',
-		                }, {
 		                    type: 'month',
 		                    count: 1,
 		                    text: '1m',
@@ -285,9 +294,6 @@
 		                    type: 'month',
 		                    count: 6,
 		                    text: '6m'
-		                }, {
-		                    type: 'ytd',
-		                    text: 'YTD'
 		                }, {
 		                    type: 'year',
 		                    count: 1,

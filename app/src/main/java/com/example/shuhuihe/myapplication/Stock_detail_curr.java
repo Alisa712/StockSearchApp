@@ -3,6 +3,7 @@ package com.example.shuhuihe.myapplication;
 import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.SharedPreferences;
+import android.graphics.Color;
 import android.net.Uri;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
@@ -16,6 +17,7 @@ import android.webkit.WebSettings;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
 import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.ListView;
@@ -49,6 +51,7 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 
 
@@ -85,6 +88,8 @@ public class Stock_detail_curr extends Fragment {
     SharedPreferences sharedpref;
     //private Spinner changeChartView;
 
+    private int positionSpinner = 0;
+
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -113,24 +118,22 @@ public class Stock_detail_curr extends Fragment {
             currentIndi = "Price";
             Spinner spinner = (Spinner) rootview.findViewById(R.id.change_chart);
             //spinner.setVisibility(View.GONE);
-            spinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
-                @Override
-                public void onItemSelected(AdapterView<?> adapterView, View view, int i, long l) {
-                    String selctedIndi = adapterView.getItemAtPosition(i).toString();
-                    if (!currentIndi.equals(selctedIndi)) {
-                        currentIndi = selctedIndi;
-                    }
-                }
 
-                @Override
-                public void onNothingSelected(AdapterView<?> adapterView) {
 
-                }
-            });
 
-            mWebView = rootview.findViewById(R.id.webview);
-            //mWebView.setVisibility(View.GONE);
-            TextView changeButton = rootview.findViewById(R.id.change_indicator);
+            final List<String> spinnerList = new ArrayList<>();
+
+            spinnerList.add("Price");
+            spinnerList.add("SMA");
+            spinnerList.add("EMA");
+            spinnerList.add("STOCH");
+            spinnerList.add("RSI");
+            spinnerList.add("ADX");
+            spinnerList.add("CCI");
+            spinnerList.add("BBANDS");
+            spinnerList.add("MACD");
+
+            final Button changeButton = rootview.findViewById(R.id.change_indicator);
             //button.setVisibility(View.GONE);
             changeButton.setOnClickListener(new View.OnClickListener() {
                 @Override
@@ -142,6 +145,52 @@ public class Stock_detail_curr extends Fragment {
                 }
             });
 
+            final ArrayAdapter<String> spinnerAdapter = new ArrayAdapter<String>(getContext(), android.R.layout.simple_list_item_1, spinnerList) {
+                @Override
+                public boolean isEnabled(int position) {
+                    if (position == positionSpinner) {
+                        //changeButton.setClickable(false);
+                        // Disable the second item from Spinner
+                        return false;
+                    } else {
+                        //changeButton.setClickable(true);
+                        return true;
+                    }
+                }
+                @Override
+                public View getDropDownView(int position, View convertView,
+                                            ViewGroup parent) {
+                    View view = super.getDropDownView(position, convertView, parent);
+                    TextView tv = (TextView) view;
+                    if ( position == positionSpinner) {
+                        // Set the disable item text color
+                        tv.setTextColor(Color.GRAY);
+                    } else {
+                        tv.setTextColor(Color.BLACK);
+                    }
+                    return view;
+                }
+
+            };
+            spinner.setAdapter(spinnerAdapter);
+            spinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+                @Override
+                public void onItemSelected(AdapterView<?> adapterView, View view, int i, long l) {
+                    String selctedIndi = adapterView.getItemAtPosition(i).toString();
+                    if (!currentIndi.equals(selctedIndi)) {
+                        currentIndi = selctedIndi;
+                        positionSpinner=i;
+                        spinnerAdapter.notifyDataSetChanged();
+                    }
+                }
+
+                @Override
+                public void onNothingSelected(AdapterView<?> adapterView) {
+
+                }
+            });
+            mWebView = rootview.findViewById(R.id.webview);
+            //mWebView.setVisibility(View.GONE);
             loadWebView(symbol, currentIndi);
             ImageView facebook = rootview.findViewById(R.id.facebook);
             facebook.setOnClickListener(new View.OnClickListener() {
@@ -163,8 +212,6 @@ public class Stock_detail_curr extends Fragment {
                     }
                 }
             });
-
-
         }
         return rootview;
     }

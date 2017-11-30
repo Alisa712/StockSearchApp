@@ -8,7 +8,7 @@
     <TextView
         android:id="@+id/title_info"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
+        android:layout_height="45dp"
         android:text="Title"
         android:textColor="@color/black"
         android:textSize="18sp"
@@ -17,13 +17,13 @@
     <TextView
         android:id="@+id/author_info"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
+        android:layout_height="30dp"
         android:text="Author" />
 
     <TextView
         android:id="@+id/date_info"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
+        android:layout_height="30dp"
         android:text="Date" />
 
 </LinearLayout>
