@@ -55,12 +55,14 @@ import java.util.List;
 import java.util.Map;
 
 
+
+
 public class Stock_detail_curr extends Fragment {
 
     private View rootview;
     private TextView indiTextView;
 
-
+    private ImageView fbImageView;
     private ListView listview;
     //private ListView favListview;
     private WebView mWebView;
@@ -89,6 +91,8 @@ public class Stock_detail_curr extends Fragment {
     //private Spinner changeChartView;
 
     private int positionSpinner = 0;
+    private ImageView emptyStarImageView;
+    private ImageView filledStarImageView;
 
 
     @Override
@@ -103,6 +107,17 @@ public class Stock_detail_curr extends Fragment {
         if (rootview == null) {
             rootview = inflater.inflate(R.layout.fragment_stock_detail_current, container, false);
             listview = rootview.findViewById(R.id.tableList);
+            fbImageView = rootview.findViewById(R.id.facebook);
+            emptyStarImageView = rootview.findViewById(R.id.star);
+            filledStarImageView = rootview.findViewById(R.id.filledStar);
+
+            fbImageView.setEnabled(false);
+            emptyStarImageView.setEnabled(false);
+            filledStarImageView.setEnabled(false);
+            emptyStarImageView.setVisibility(View.VISIBLE);
+            filledStarImageView.setVisibility(View.GONE);
+
+
             //listview.setVisibility(View.GONE);
             //indiTextView = rootview.findViewById(R.id.indi);
             //indiTextView.setVisibility(View.GONE);
@@ -192,17 +207,27 @@ public class Stock_detail_curr extends Fragment {
             mWebView = rootview.findViewById(R.id.webview);
             //mWebView.setVisibility(View.GONE);
             loadWebView(symbol, currentIndi);
-            ImageView facebook = rootview.findViewById(R.id.facebook);
-            facebook.setOnClickListener(new View.OnClickListener() {
+            //ImageView facebook = rootview.findViewById(R.id.facebook);
+            fbImageView.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
                     getChartURL(option);
-
                 }
             });
 
-            ImageView star = rootview.findViewById(R.id.star);
-            star.setOnClickListener(new View.OnClickListener() {
+            //ImageView star = rootview.findViewById(R.id.star);
+            emptyStarImageView.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    try {
+                        changeFav(symbol);
+                    } catch (JSONException e) {
+                        e.printStackTrace();
+                    }
+                }
+            });
+
+            filledStarImageView.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
                     try {
@@ -217,20 +242,22 @@ public class Stock_detail_curr extends Fragment {
     }
 
     private void changeFav(String symbol) throws JSONException {
-
         if (sharedpref.contains(symbol)) {
+            filledStarImageView.setVisibility(View.GONE);
+            emptyStarImageView.setVisibility(View.VISIBLE);
             SharedPreferences.Editor editor = sharedpref.edit();
             editor.remove(symbol);
             Log.d("REMOVE", "REMOVED!");
             editor.apply();
         } else {
+            emptyStarImageView.setVisibility(View.GONE);
+            filledStarImageView.setVisibility(View.VISIBLE);
             addThisStock(symbol);
         }
     }
 
     private void addThisStock(final String symbol) throws JSONException {
         //refreshArr = new JSONArray();
-
         Date date = new Date();
         final long timestamp = date.getTime();
         stockInfo.put("timestamp", timestamp);
@@ -375,22 +402,6 @@ public class Stock_detail_curr extends Fragment {
                                     stockInfo.put("changePercentInFloat", String.format("%.2f", changePercent));
                                     //stockInfo.put("timestamp", timestampRealTime);
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
                                     ArrayList<Detail> details = new ArrayList<>();
 
                                     Detail symbol_detail = new Detail("Stock Symbol", stockSymbol);
@@ -422,6 +433,10 @@ public class Stock_detail_curr extends Fragment {
 
                                     finished[0] = true;
                                     tableBar.setVisibility(View.GONE);
+
+                                    emptyStarImageView.setEnabled(true);
+                                    filledStarImageView.setEnabled(true);
+
                                     //listview.setVisibility(View.VISIBLE);
                                 } catch (JSONException e) {
                                     e.printStackTrace();
@@ -438,6 +453,12 @@ public class Stock_detail_curr extends Fragment {
         //while (!finished[0]) {}
         jsonObjReq.setRetryPolicy(new DefaultRetryPolicy(1000, 5, 1));
         queue.add(jsonObjReq);
+
+        if (sharedpref.contains(symbol)) {
+            emptyStarImageView.setVisibility(View.GONE);
+            filledStarImageView.setVisibility(View.VISIBLE);
+        }
+
     }
 
     final class JavaScriptInterfaceClass {
@@ -456,6 +477,7 @@ public class Stock_detail_curr extends Fragment {
                 public void run() {
                     //mWebView.setVisibility(View.VISIBLE);
                     progBar.setVisibility(View.GONE);
+                    fbImageView.setEnabled(true);
                     //stuff that updates ui
                 }
             });
