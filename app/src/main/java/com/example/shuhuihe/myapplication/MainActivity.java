@@ -16,14 +16,19 @@ import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.AutoCompleteTextView;
 import android.widget.Button;
+import android.widget.CompoundButton;
+import android.widget.CompoundButton.OnCheckedChangeListener;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.PopupMenu;
 import android.widget.ProgressBar;
 import android.widget.Spinner;
+import android.widget.Switch;
 import android.widget.TextView;
 import android.widget.Toast;
+import android.widget.ToggleButton;
+
 import com.android.volley.DefaultRetryPolicy;
 import com.android.volley.Request;
 import com.android.volley.RequestQueue;
@@ -41,6 +46,8 @@ import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Timer;
+import java.util.TimerTask;
 
 //import static com.example.shuhuihe.myapplication.Favorite.defaultComp;
 
@@ -61,6 +68,9 @@ public class MainActivity extends AppCompatActivity {
     private Spinner spinnerSort;
     private Spinner spinnerOrder;
 
+    private Timer myTimer;
+    private Boolean isRunning;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -71,6 +81,8 @@ public class MainActivity extends AppCompatActivity {
         final Button getQuote = (Button) findViewById(R.id.getQuoteButton);
         final Button clearQuote = (Button) findViewById(R.id.clearButton);
         final ImageView refresh = findViewById(R.id.refresh);
+        final Switch autoSwitch = (Switch) findViewById(R.id.autoSwitch);
+
         autoBar = findViewById(R.id.autoBar);
         autoBar.setVisibility(View.GONE);
 
@@ -178,6 +190,26 @@ public class MainActivity extends AppCompatActivity {
                 return view;
             }
         };
+        OnCheckedChangeListener autoChangeListener = new OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton compoundButton, boolean isChecked) {
+                if(isChecked) {
+                    isRunning = false;
+                    myTimer = new Timer();
+                    myTimer.schedule(new TimerTask() {
+                        @Override
+                        public void run() {
+                            TimerMethod();
+                        }
+                    }, 0, 5000);
+                } else {
+                    myTimer.cancel();
+                    myTimer = null;
+                }
+            }
+        };
+        autoSwitch.setOnCheckedChangeListener(autoChangeListener);
+
 
         spinnerSort.setAdapter(spinnerAdapter);
         spinnerOrder.setAdapter(spinnerAdapterOrder);
@@ -277,6 +309,19 @@ public class MainActivity extends AppCompatActivity {
             }
         });
     }
+
+    private void TimerMethod() {
+        this.runOnUiThread(Timer_Tick);
+    }
+
+    private Runnable Timer_Tick = new Runnable() {
+        public void run() {
+            if (!isRunning) {
+                isRunning = true;
+                refreshAllStock();
+            }
+        }
+    };
 
     private void doSort(String currentSort, String currentOrder, Spinner spinnerSort, Spinner spinnerOrder, ArrayList<Favorite> favList) {
         switch (currentSort) {
@@ -424,6 +469,7 @@ public class MainActivity extends AppCompatActivity {
                                             finishedAll[0] = true;
                                             doSort(currentSort, currentOrder, spinnerSort, spinnerOrder, details);
                                             resetList();
+                                            isRunning = false;
                                         }
                                     } catch (JSONException e) {
                                         e.printStackTrace();
