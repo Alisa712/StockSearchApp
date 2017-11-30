@@ -57,6 +57,7 @@ public class Stock_detail_curr extends Fragment {
     private View rootview;
     private TextView indiTextView;
 
+
     private ListView listview;
     //private ListView favListview;
     private WebView mWebView;
@@ -70,6 +71,8 @@ public class Stock_detail_curr extends Fragment {
     private JSONObject timeSeriesDaily;
     private JSONArray jsonArray;
     private JSONArray refreshArr;
+
+    private JSONObject stockInfo;
     private String currentIndi;
     private String option;
     private String urlFB;
@@ -178,66 +181,18 @@ public class Stock_detail_curr extends Fragment {
         }
     }
 
-    private void addThisStock(final String symbol) {
-        refreshArr = new JSONArray();
+    private void addThisStock(final String symbol) throws JSONException {
+        //refreshArr = new JSONArray();
 
         Date date = new Date();
         final long timestamp = date.getTime();
-        JsonObjectRequest stockReq = new JsonObjectRequest
-                (Request.Method.GET, URL + symbol, null,
-                        new Response.Listener<JSONObject>() {
-                            @Override
-                            public void onResponse(JSONObject response) {
-                                try {
-
-                                    SharedPreferences.Editor editor = sharedpref.edit();
-                                    JSONObject stockInfo = new JSONObject();
-                                    JSONObject tsDaily;
-                                    Float lastPrice;
-                                    Float previousDatePrice;
-                                    Float change;
-                                    Float changePercent;
-                                    String changeDetail;
-                                    tsDaily = response.getJSONObject("Time Series (Daily)");
-                                    Iterator dates = tsDaily.keys();
-                                    while (dates.hasNext()) {
-                                        String date = (String) dates.next();
-                                        refreshArr.put(tsDaily.get(date));
-                                    }
-                                    lastPrice = Float.parseFloat(refreshArr.getJSONObject(0).getString("4. close"));
-                                    previousDatePrice = Float.parseFloat(refreshArr.getJSONObject(1).getString("4. close"));
-                                    change = lastPrice - previousDatePrice;
-                                    changePercent = change / previousDatePrice * 100;
-                                    changeDetail = String.format("%.2f", change) + "(" + String.format("%.2f", changePercent) + "%)";
-                                    stockInfo.put("stockFav", symbol);
-                                    stockInfo.put("priceFav", lastPrice.toString());
-                                    stockInfo.put("changeFav", changeDetail);
-                                    stockInfo.put("isIncreasing", change>0);
-                                    stockInfo.put("changeInFloat", String.format("%.2f", change));
-                                    stockInfo.put("changePercentInFloat", String.format("%.2f", changePercent));
-                                    stockInfo.put("timestamp", timestamp);
-
-                                    String stockInfoStr = stockInfo.toString();
-                                    Log.d("stockInfo", stockInfoStr);
-                                    editor.putString(symbol, stockInfoStr);
-                                    editor.apply();
-                                    Log.d("ADDED", "JSON");
-                                    String msg = sharedpref.getString(symbol, "FAILED");
-
-                                    Log.d("JSONLOCAL", msg);
-                                } catch (JSONException e) {
-                                    e.printStackTrace();
-                                }
-                            }
-                        },
-                        new Response.ErrorListener() {
-                            @Override
-                            public void onErrorResponse(VolleyError error) {
-                                error.printStackTrace();
-                            }
-                        });
-        stockReq.setRetryPolicy(new DefaultRetryPolicy(5000, DefaultRetryPolicy.DEFAULT_MAX_RETRIES, DefaultRetryPolicy.DEFAULT_BACKOFF_MULT));
-        queue.add(stockReq);
+        stockInfo.put("timestamp", timestamp);
+        SharedPreferences.Editor editor = sharedpref.edit();
+        String stockInfoStr = stockInfo.toString();
+        Log.d("stockInfo", stockInfoStr);
+        editor.putString(symbol, stockInfoStr);
+        editor.apply();
+        Log.d("ADDED", " IN LOCAL");
     }
 
     private void getChartURL(String option) {
@@ -308,13 +263,15 @@ public class Stock_detail_curr extends Fragment {
         final Boolean finished[] = {false};
         jsonArray = new JSONArray();
 
-
         JsonObjectRequest jsonObjReq = new JsonObjectRequest
                 (Request.Method.GET, URL + stockSymbol, null,
                         new Response.Listener<JSONObject>() {
                             @SuppressLint("DefaultLocale")
                             public void onResponse(JSONObject response) {
                                 try {
+                                    //SharedPreferences.Editor editor = sharedpref.edit();
+                                    stockInfo = new JSONObject();
+
                                     Float lastPrice;
                                     Float previousDatePrice;
                                     Float change;
@@ -363,6 +320,29 @@ public class Stock_detail_curr extends Fragment {
 
                                     daysRange = String.format("%.2f", low) + " - " + String.format("%.2f", high);
 
+                                    stockInfo.put("stockFav", stockSymbol);
+                                    stockInfo.put("priceFav", lastPrice.toString());
+                                    stockInfo.put("changeFav", changeDetail);
+                                    stockInfo.put("isIncreasing", change > 0);
+                                    stockInfo.put("changeInFloat", String.format("%.2f", change));
+                                    stockInfo.put("changePercentInFloat", String.format("%.2f", changePercent));
+                                    //stockInfo.put("timestamp", timestampRealTime);
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
                                     ArrayList<Detail> details = new ArrayList<>();
 
@@ -409,7 +389,7 @@ public class Stock_detail_curr extends Fragment {
                             }
                         });
         //while (!finished[0]) {}
-        jsonObjReq.setRetryPolicy(new DefaultRetryPolicy(5000, DefaultRetryPolicy.DEFAULT_MAX_RETRIES, DefaultRetryPolicy.DEFAULT_BACKOFF_MULT));
+        jsonObjReq.setRetryPolicy(new DefaultRetryPolicy(1000, 5, 1));
         queue.add(jsonObjReq);
     }
 

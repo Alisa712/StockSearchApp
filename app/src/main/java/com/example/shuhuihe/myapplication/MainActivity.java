@@ -7,6 +7,9 @@ import android.preference.PreferenceManager;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.Gravity;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
@@ -16,6 +19,7 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.ListView;
+import android.widget.PopupMenu;
 import android.widget.ProgressBar;
 import android.widget.Spinner;
 import android.widget.TextView;
@@ -54,6 +58,8 @@ public class MainActivity extends AppCompatActivity {
     private int positionInOrderSpinner;
     private ProgressBar refreshBar;
     private ProgressBar autoBar;
+    private Spinner spinnerSort;
+    private Spinner spinnerOrder;
 
 
     @Override
@@ -78,9 +84,6 @@ public class MainActivity extends AppCompatActivity {
 
         sharedpref = PreferenceManager.getDefaultSharedPreferences(this);
         queue = Volley.newRequestQueue(this);
-//        SharedPreferences.Editor editor = sharedpref.edit();
-//        editor.clear();
-//        editor.commit();
         final ArrayList<Favorite> favList = new ArrayList<>();
         Map<String, ?> allEntries = sharedpref.getAll();
         allEntries.remove("com.facebook.appevents.SourceApplicationInfo.callingApplicationPackage");
@@ -107,8 +110,8 @@ public class MainActivity extends AppCompatActivity {
         }
         currentSort = "Sort by";
         currentOrder = "Order";
-        final Spinner spinnerSort = (Spinner) findViewById(R.id.spinner1);
-        final Spinner spinnerOrder = (Spinner) findViewById(R.id.spinner2);
+        spinnerSort = (Spinner) findViewById(R.id.spinner1);
+        spinnerOrder = (Spinner) findViewById(R.id.spinner2);
 
         Collections.sort(favList, Favorite.defaultComp);
         final List<String> spinnerList = new ArrayList<>();
@@ -237,6 +240,42 @@ public class MainActivity extends AppCompatActivity {
                 refreshAllStock();
             }
         });
+
+        favListview.setOnItemLongClickListener(new AdapterView.OnItemLongClickListener() {
+            @Override
+            public boolean onItemLongClick(AdapterView<?> adapterView, View view, final int i, long l) {
+                PopupMenu pop = new PopupMenu(MainActivity.this, view, Gravity.RIGHT);
+                MenuInflater menuInflater = getMenuInflater();
+                menuInflater.inflate(R.menu.menu_popup, pop.getMenu());
+
+                pop.getMenu().findItem(R.id.title_item).setEnabled(false);
+                pop.show();
+                pop.setOnMenuItemClickListener(new PopupMenu.OnMenuItemClickListener() {
+                    @Override
+                    public boolean onMenuItemClick(MenuItem item) {
+                        switch (item.getItemId()) {
+                            case R.id.no:
+                                break;
+                            case R.id.yes:
+                                SharedPreferences.Editor editor = sharedpref.edit();
+                                String symbolRemove = favList.get(i).getSymbol();
+                                editor.remove(symbolRemove);
+                                Log.d("REMOVE", "REMOVED!");
+                                editor.apply();
+                                favList.remove(i);
+                                ListView favListview = findViewById(R.id.favorite_list);
+                                FavoriteAdapter favAdapter = new FavoriteAdapter(MainActivity.this, R.layout.detail_fav_layout, favList);
+                                favListview.setAdapter(favAdapter);
+                                break;
+                            default:
+                                break;
+                        }
+                        return true;
+                    }
+                });
+                return true;
+            }
+        });
     }
 
     private void doSort(String currentSort, String currentOrder, Spinner spinnerSort, Spinner spinnerOrder, ArrayList<Favorite> favList) {
@@ -341,7 +380,8 @@ public class MainActivity extends AppCompatActivity {
                                 @Override
                                 public void onResponse(JSONObject response) {
                                     try {
-                                        editor.clear();
+                                        // Here the problem
+                                        // editor.clear();
                                         Log.d("INTO", "REQUEST");
                                         JSONArray refreshArr = new JSONArray();
                                         JSONObject tsDaily;
@@ -364,7 +404,7 @@ public class MainActivity extends AppCompatActivity {
                                         changeDetail = String.format("%.2f", change) + "(" + String.format("%.2f", changePercent) + "%)";
 
                                         stockInfo.put("stockFav", symbol);
-                                        stockInfo.put("priceFav", lastPrice.toString());
+                                        stockInfo.put("priceFav", String.format("%.2f", lastPrice));
                                         stockInfo.put("changeFav", changeDetail);
                                         stockInfo.put("isIncreasing", change > 0);
                                         stockInfo.put("changeInFloat", String.format("%.2f", change));
@@ -382,6 +422,7 @@ public class MainActivity extends AppCompatActivity {
                                         Log.d("finised", finished[0].toString());
                                         if (details.size() == allEntries.size()) {
                                             finishedAll[0] = true;
+                                            doSort(currentSort, currentOrder, spinnerSort, spinnerOrder, details);
                                             resetList();
                                         }
                                     } catch (JSONException e) {
@@ -397,7 +438,7 @@ public class MainActivity extends AppCompatActivity {
                                 }
                             });
 
-            jsonObjReq.setRetryPolicy(new DefaultRetryPolicy(10000, DefaultRetryPolicy.DEFAULT_MAX_RETRIES, DefaultRetryPolicy.DEFAULT_BACKOFF_MULT));
+            jsonObjReq.setRetryPolicy(new DefaultRetryPolicy(1000, 5, 1));
             queue.add(jsonObjReq);
 //            while (!finished[0]) {
 //            }
@@ -410,15 +451,12 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void resetList() {
-
         Log.d("INTO", "ALL");
+        //doSort("Default", "Ascending");
         ListView favListview2 = findViewById(R.id.favorite_list);
         FavoriteAdapter favAdapter2 = new FavoriteAdapter(this, R.layout.detail_fav_layout, details);
         refreshBar.setVisibility(View.GONE);
         favListview2.setAdapter(favAdapter2);
-
-
-
     }
 
 }
