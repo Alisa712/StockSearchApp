@@ -42,14 +42,12 @@ import java.util.Map;
 
 public class MainActivity extends AppCompatActivity {
 
-
     private ArrayList<String> company_list = new ArrayList<>();
     private SharedPreferences sharedpref;
     //private JSONArray refreshArr;
     RequestQueue queue;
     private ArrayList<Favorite> details;
     private String URL;
-
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -58,6 +56,7 @@ public class MainActivity extends AppCompatActivity {
 
         final AutoCompleteTextView searchStock = findViewById(R.id.autoCompleteTextView);
         final Button getQuote = (Button) findViewById(R.id.getQuoteButton);
+        final Button clearQuote = (Button) findViewById(R.id.clearButton);
         final ImageView refresh = findViewById(R.id.refresh);
 
         AutoCompleteAdaptor autoCompleteAdaptor = new AutoCompleteAdaptor(this, R.layout.list_company, company_list);
@@ -85,8 +84,11 @@ public class MainActivity extends AppCompatActivity {
             Float price = jobj.get("priceFav").getAsFloat();
             String change = jobj.get("changeFav").getAsString();
             boolean up = jobj.get("isIncreasing").getAsBoolean();
+            Float changeInFloat = jobj.get("changeInFloat").getAsFloat();
+            Float changePercentInFloat = jobj.get("changePercentInFloat").getAsFloat();
+            long timestamp = jobj.get("timestamp").getAsLong();
 
-            Favorite favItem = new Favorite(symbol, price, change, up);
+            Favorite favItem = new Favorite(symbol,price,changeInFloat,changePercentInFloat,timestamp,change,up);
             favList.add(favItem);
 
         }
@@ -106,6 +108,13 @@ public class MainActivity extends AppCompatActivity {
                     activityChangeIntent.putExtra("symbol", symbol);
                     MainActivity.this.startActivity(activityChangeIntent);
                 }
+            }
+        });
+
+        clearQuote.setOnClickListener(new View.OnClickListener() {
+            public void onClick(View v) {
+                EditText companySymbol = (EditText) findViewById(R.id.autoCompleteTextView);
+                companySymbol.setText("");
             }
         });
 
@@ -134,6 +143,7 @@ public class MainActivity extends AppCompatActivity {
             JsonObject jobj = new Gson().fromJson(info, JsonObject.class);
             final String symbol = jobj.get("stockFav").getAsString();
             Log.d("SYMBOL", symbol);
+            final long timestamp = jobj.get("timestamp").getAsLong();
             final Boolean finished[] = {false};
             Log.d("Before", "REQ");
             JsonObjectRequest jsonObjReq = new JsonObjectRequest
@@ -164,19 +174,19 @@ public class MainActivity extends AppCompatActivity {
                                         changePercent = change / previousDatePrice * 100;
                                         changeDetail = String.format("%.2f", change) + "(" + String.format("%.2f", changePercent) + "%)";
 
-
                                         stockInfo.put("stockFav", symbol);
                                         stockInfo.put("priceFav", lastPrice.toString());
                                         stockInfo.put("changeFav", changeDetail);
                                         stockInfo.put("isIncreasing", change>0);
+                                        stockInfo.put("changeInFloat", String.format("%.2f", change));
+                                        stockInfo.put("changePercentInFloat", String.format("%.2f", changePercent));
+                                        stockInfo.put("timestamp", timestamp);
 
                                         String stockInfoStr = stockInfo.toString();
                                         Log.d("stockInfo", stockInfoStr);
                                         editor.putString(symbol, stockInfoStr);
                                         editor.apply();
-
-                                        details.add(new Favorite(symbol, lastPrice, changeDetail, change > 0));
-
+                                        details.add(new Favorite(symbol,lastPrice,change,changePercent,timestamp,changeDetail,change>0));
                                         finished[0] = true;
                                         String t = "hi "+details.size();
                                         Log.d("detailsize", details.toString());
@@ -198,7 +208,7 @@ public class MainActivity extends AppCompatActivity {
                                 }
                             });
 
-            jsonObjReq.setRetryPolicy(new DefaultRetryPolicy(5000, DefaultRetryPolicy.DEFAULT_MAX_RETRIES, DefaultRetryPolicy.DEFAULT_BACKOFF_MULT));
+            jsonObjReq.setRetryPolicy(new DefaultRetryPolicy(10000, DefaultRetryPolicy.DEFAULT_MAX_RETRIES, DefaultRetryPolicy.DEFAULT_BACKOFF_MULT));
             queue.add(jsonObjReq);
 //            while (!finished[0]) {
 //            }

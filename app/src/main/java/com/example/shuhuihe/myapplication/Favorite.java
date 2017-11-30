@@ -7,12 +7,18 @@ package com.example.shuhuihe.myapplication;
 public class Favorite {
     String symbol;
     Float price;
+    Float change;
+    Float changePercent;
+    Long timestamp;
     String changeInfo;
     boolean isIncresing;
 
-    public Favorite(String symbol, Float price, String changeInfo, boolean isIncresing) {
+    public Favorite(String symbol, Float price, Float change, Float changePercent, Long timestamp, String changeInfo, boolean isIncresing) {
         this.symbol = symbol;
         this.price = price;
+        this.change = change;
+        this.changePercent = changePercent;
+        this.timestamp = timestamp;
         this.changeInfo = changeInfo;
         this.isIncresing = isIncresing;
     }
@@ -31,6 +37,30 @@ public class Favorite {
 
     public void setPrice(Float price) {
         this.price = price;
+    }
+
+    public Float getChange() {
+        return change;
+    }
+
+    public void setChange(Float change) {
+        this.change = change;
+    }
+
+    public Float getChangePercent() {
+        return changePercent;
+    }
+
+    public void setChangePercent(Float changePercent) {
+        this.changePercent = changePercent;
+    }
+
+    public Long getTimestamp() {
+        return timestamp;
+    }
+
+    public void setTimestamp(Long timestamp) {
+        this.timestamp = timestamp;
     }
 
     public String getChangeInfo() {

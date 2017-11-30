@@ -40,7 +40,9 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.security.Key;
+import java.security.Timestamp;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
@@ -167,29 +169,21 @@ public class Stock_detail_curr extends Fragment {
         } else {
             addThisStock(symbol);
         }
-//        if (stockDetails.getJSONObject(symbol) != null) {
-//            stockDetails.remove(symbol);
-//            SharedPreferences.Editor editor = sharedpref.edit();
-//            editor.putString("favorite", stockDetails.toString());
-//            editor.apply();
-//        } else {
-//            stockDetails.put(symbol, null);
-//
-//            favoritThisStock();
-//        }
     }
 
     private void addThisStock(final String symbol) {
         refreshArr = new JSONArray();
 
+        Date date = new Date();
+        final long timestamp = date.getTime();
         JsonObjectRequest stockReq = new JsonObjectRequest
                 (Request.Method.GET, URL + symbol, null,
                         new Response.Listener<JSONObject>() {
                             @Override
                             public void onResponse(JSONObject response) {
                                 try {
-                                    SharedPreferences.Editor editor = sharedpref.edit();
 
+                                    SharedPreferences.Editor editor = sharedpref.edit();
                                     JSONObject stockInfo = new JSONObject();
                                     JSONObject tsDaily;
                                     Float lastPrice;
@@ -212,25 +206,20 @@ public class Stock_detail_curr extends Fragment {
                                     stockInfo.put("priceFav", lastPrice.toString());
                                     stockInfo.put("changeFav", changeDetail);
                                     stockInfo.put("isIncreasing", change>0);
+                                    stockInfo.put("changeInFloat", String.format("%.2f", change));
+                                    stockInfo.put("changePercentInFloat", String.format("%.2f", changePercent));
+                                    stockInfo.put("timestamp", timestamp);
 
                                     String stockInfoStr = stockInfo.toString();
                                     Log.d("stockInfo", stockInfoStr);
                                     editor.putString(symbol, stockInfoStr);
                                     editor.apply();
                                     Log.d("ADDED", "JSON");
-//                                    Favorite fav_detail = new Favorite(key, lastPrice.toString(),changeDetail, change>0);
-//                                    details.add(fav_detail);
-//
-//                                    FavoriteAdapter favoriteAdapter = new FavoriteAdapter(getContext(), R.layout.detail_fav_layout, details);
-//                                    listview.setAdapter(detailApater);
-//
-//                                    finished[0] = true;
                                     String msg = sharedpref.getString(symbol, "FAILED");
 
                                     Log.d("JSONLOCAL", msg);
                                 } catch (JSONException e) {
                                     e.printStackTrace();
-//                                    finished[0] = true;
                                 }
                             }
                         },
@@ -242,8 +231,6 @@ public class Stock_detail_curr extends Fragment {
                         });
         stockReq.setRetryPolicy(new DefaultRetryPolicy(5000, DefaultRetryPolicy.DEFAULT_MAX_RETRIES, DefaultRetryPolicy.DEFAULT_BACKOFF_MULT));
         queue.add(stockReq);
-
-
     }
 
 
