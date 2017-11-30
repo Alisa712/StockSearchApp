@@ -5,6 +5,7 @@
     android:layout_height="fill_parent"
     android:fillViewport="true">
 
+
     <android.widget.RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
         xmlns:app="http://schemas.android.com/apk/res-auto"
         xmlns:tools="http://schemas.android.com/tools"
@@ -38,7 +39,7 @@
 
                 <TextView
                     android:id="@+id/stock_detail_title"
-                    android:layout_width="0dp"
+                    android:layout_width="222dp"
                     android:layout_height="wrap_content"
                     android:layout_alignParentStart="true"
                     android:layout_alignParentTop="true"
@@ -46,6 +47,7 @@
                     android:layout_marginTop="10dp"
                     android:layout_weight="1"
                     android:text="Stock Details"
+                    android:textAlignment="center"
                     android:textColor="@android:color/black"
                     android:textSize="30sp" />
 
@@ -53,43 +55,70 @@
                     android:id="@+id/facebook"
                     android:layout_width="45dp"
                     android:layout_height="45dp"
-                    android:layout_marginStart="40dp"
+                    android:layout_marginStart="0dp"
                     android:layout_marginTop="10dp"
                     android:src="@drawable/facebook" />
 
-                <ImageView
-                    android:id="@+id/star"
+                <RelativeLayout
                     android:layout_width="45dp"
-                    android:layout_height="45dp"
-                    android:layout_alignBottom="@+id/facebook"
-                    android:layout_alignParentEnd="true"
-                    android:layout_marginTop="10dp"
-                    android:layout_weight="0.2"
-                    android:src="@drawable/empty" />
+                    android:layout_height="wrap_content">
+
+                    <ImageView
+                        android:id="@+id/filledStar"
+                        android:layout_width="45dp"
+                        android:layout_height="45dp"
+
+                        android:layout_alignParentEnd="true"
+                        android:layout_marginTop="10dp"
+                        android:layout_weight="0.2"
+                        android:src="@drawable/empty" />
+
+                    <ImageView
+                        android:id="@+id/star"
+                        android:layout_width="45dp"
+                        android:layout_height="45dp"
+
+                        android:layout_alignParentEnd="true"
+                        android:layout_marginTop="10dp"
+                        android:layout_weight="0.2"
+                        android:src="@drawable/empty" />
+
+                </RelativeLayout>
+
+
 
             </LinearLayout>
 
             <!--table list view-->
-            <ProgressBar
-                android:id="@+id/tableBar"
-                style="?android:attr/progressBarStyle"
+            <RelativeLayout
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_weight="1" />
+                android:layout_height="wrap_content">
 
-            <ListView
-                android:id="@+id/tableList"
-                android:layout_width="match_parent"
-                android:layout_height="200dp"
-                android:layout_alignParentBottom="true"
-                android:layout_alignParentStart="true"
-                android:scrollbars="vertical"></ListView>
+                <ProgressBar
+                    android:id="@+id/tableBar"
+                    style="?android:attr/progressBarStyle"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginVertical="200dp"/>
+
+                <ListView
+                    android:id="@+id/tableList"
+                    android:layout_width="match_parent"
+                    android:layout_height="400dp"
+                    android:layout_alignParentStart="true"
+                    android:layout_alignParentTop="true"
+                    android:scrollbars="vertical">
+
+                </ListView>
+
+            </RelativeLayout>
+
 
 
             <!--highchart indicators-->
             <LinearLayout
                 android:layout_width="fill_parent"
-                android:layout_height="wrap_content"
+                android:layout_height="57dp"
                 android:orientation="horizontal"
                 android:padding="10dp">
 
@@ -99,10 +128,12 @@
                     android:layout_width="0dp"
                     android:layout_height="match_parent"
                     android:layout_weight="1"
-                    android:text="Indicators"
-                    android:textColor="#000000"
-                    android:textSize="24sp" />
 
+                    android:text="Indicators"
+                    android:textAlignment="center"
+                    android:textColor="#000000"
+                    android:textSize="24sp"
+                    android:textStyle="bold" />
 
 
                 <Spinner
@@ -112,14 +143,16 @@
                     android:layout_weight="1"
                     android:entries="@array/chart_arrays" />
 
-                <Button
+                <TextView
                     android:id="@+id/change_indicator"
                     android:layout_width="0dp"
                     android:layout_height="match_parent"
                     android:layout_weight="1"
                     android:text="Change"
                     android:textAlignment="center"
-                    android:textSize="24sp" />
+                    android:textColor="@color/black"
+                    android:textSize="24sp"
+                    android:visibility="visible" />
             </LinearLayout>
 
             <ProgressBar
@@ -135,7 +168,7 @@
             <WebView
                 android:id="@+id/webview"
                 android:layout_width="match_parent"
-                android:layout_height="500dp" />
+                android:layout_height="400dp" />
 
         </LinearLayout>
 

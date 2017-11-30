@@ -6,6 +6,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.Filter;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 
 
@@ -30,6 +31,7 @@ public class AutoCompleteAdaptor extends ArrayAdapter<String> {
     private List<String> companyList;
     private final String URL = "http://shuhuihe571hw8-env.us-east-2.elasticbeanstalk.com/autocomplete?input=";
     RequestQueue queue = Volley.newRequestQueue(getContext());
+    //private ProgressBar autoBar;
 
 
     public AutoCompleteAdaptor(Context context, int textViewResourceId, List<String> companyList) {
@@ -57,6 +59,7 @@ public class AutoCompleteAdaptor extends ArrayAdapter<String> {
                 // Boolean to control complete
                 final Boolean finished[] = {false};
                 if (constraint != null) {
+                    //autoBar.setVisibility(View.VISIBLE);
 
                     JsonArrayRequest jsArrReq = new JsonArrayRequest
                             (Request.Method.GET, URL+constraint.toString(), null,
@@ -76,6 +79,7 @@ public class AutoCompleteAdaptor extends ArrayAdapter<String> {
                                                 filterResults.values = companyList;
                                                 filterResults.count = companyList.size();
                                                 finished[0] = true;
+                                                //autoBar.setVisibility(View.GONE);
                                             } catch (Exception e) {
                                                 finished[0] = true;
                                                 e.printStackTrace();
@@ -124,13 +128,15 @@ public class AutoCompleteAdaptor extends ArrayAdapter<String> {
         }
 
         String company = companyList.get(position);
+        //autoBar = v.findViewById(R.id.autoBar);
 
         if (company != null) {
-
+            //autoBar.setVisibility(View.VISIBLE);
             TextView autoDetails = v.findViewById(R.id.stockCompany);
 
             if (autoDetails != null) {
                 autoDetails.setText(company);
+                //autoBar.setVisibility(View.GONE);
             }
         }
         return v;

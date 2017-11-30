@@ -53,6 +53,7 @@ public class MainActivity extends AppCompatActivity {
     private int positionInSortSpinner;
     private int positionInOrderSpinner;
     private ProgressBar refreshBar;
+    private ProgressBar autoBar;
 
 
     @Override
@@ -64,12 +65,15 @@ public class MainActivity extends AppCompatActivity {
         final Button getQuote = (Button) findViewById(R.id.getQuoteButton);
         final Button clearQuote = (Button) findViewById(R.id.clearButton);
         final ImageView refresh = findViewById(R.id.refresh);
+        autoBar = findViewById(R.id.autoBar);
+        autoBar.setVisibility(View.GONE);
 
         refreshBar = findViewById(R.id.refreshBar);
         refreshBar.setVisibility(View.GONE);
 
         AutoCompleteAdaptor autoCompleteAdaptor = new AutoCompleteAdaptor(this, R.layout.list_company, company_list);
         searchStock.setAdapter(autoCompleteAdaptor);
+        //autoBar.setVisibility(View.GONE);
         searchStock.setThreshold(1);
 
         sharedpref = PreferenceManager.getDefaultSharedPreferences(this);
@@ -305,6 +309,7 @@ public class MainActivity extends AppCompatActivity {
         }
         ListView favListviewSort = findViewById(R.id.favorite_list);
         FavoriteAdapter favAdapterSort = new FavoriteAdapter(this, R.layout.detail_fav_layout, favList);
+        Log.d("size of fav list", " is "+favList.size());
         favListviewSort.setAdapter(favAdapterSort);
     }
 
@@ -409,8 +414,9 @@ public class MainActivity extends AppCompatActivity {
         Log.d("INTO", "ALL");
         ListView favListview2 = findViewById(R.id.favorite_list);
         FavoriteAdapter favAdapter2 = new FavoriteAdapter(this, R.layout.detail_fav_layout, details);
-        favListview2.setAdapter(favAdapter2);
         refreshBar.setVisibility(View.GONE);
+        favListview2.setAdapter(favAdapter2);
+
 
 
     }

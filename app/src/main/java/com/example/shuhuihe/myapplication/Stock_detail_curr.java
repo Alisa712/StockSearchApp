@@ -127,9 +127,9 @@ public class Stock_detail_curr extends Fragment {
 
             mWebView = rootview.findViewById(R.id.webview);
             //mWebView.setVisibility(View.GONE);
-            Button button = rootview.findViewById(R.id.change_indicator);
+            TextView changeButton = rootview.findViewById(R.id.change_indicator);
             //button.setVisibility(View.GONE);
-            button.setOnClickListener(new View.OnClickListener() {
+            changeButton.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
                     if (currentIndi != null) {
