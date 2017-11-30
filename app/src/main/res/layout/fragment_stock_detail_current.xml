@@ -1,4 +1,6 @@
 <ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="fill_parent"
     android:layout_height="fill_parent"
     android:fillViewport="true">
@@ -37,15 +39,15 @@
                 <TextView
                     android:id="@+id/stock_detail_title"
                     android:layout_width="0dp"
-                    android:layout_weight="1"
                     android:layout_height="wrap_content"
                     android:layout_alignParentStart="true"
                     android:layout_alignParentTop="true"
                     android:layout_marginStart="22dp"
                     android:layout_marginTop="10dp"
+                    android:layout_weight="1"
                     android:text="Stock Details"
                     android:textColor="@android:color/black"
-                    android:textSize="30sp"/>
+                    android:textSize="30sp" />
 
                 <ImageView
                     android:id="@+id/facebook"
@@ -64,17 +66,24 @@
                     android:layout_marginTop="10dp"
                     android:layout_weight="0.2"
                     android:src="@drawable/empty" />
+
             </LinearLayout>
 
             <!--table list view-->
+            <ProgressBar
+                android:id="@+id/tableBar"
+                style="?android:attr/progressBarStyle"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_weight="1" />
+
             <ListView
                 android:id="@+id/tableList"
                 android:layout_width="match_parent"
                 android:layout_height="200dp"
                 android:layout_alignParentBottom="true"
                 android:layout_alignParentStart="true"
-                android:scrollbars="vertical">
-            </ListView>
+                android:scrollbars="vertical"></ListView>
 
 
             <!--highchart indicators-->
@@ -89,16 +98,18 @@
                     android:id="@+id/indi"
                     android:layout_width="0dp"
                     android:layout_height="match_parent"
-                    android:text="Indicators"
                     android:layout_weight="1"
+                    android:text="Indicators"
                     android:textColor="#000000"
                     android:textSize="24sp" />
+
+
 
                 <Spinner
                     android:id="@+id/change_chart"
                     android:layout_width="0dp"
-                    android:layout_weight="1"
                     android:layout_height="match_parent"
+                    android:layout_weight="1"
                     android:entries="@array/chart_arrays" />
 
                 <Button
@@ -111,6 +122,15 @@
                     android:textSize="24sp" />
             </LinearLayout>
 
+            <ProgressBar
+                android:id="@+id/detailProgress"
+                style="?android:attr/progressBarStyle"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:baselineAligned="false"
+                tools:layout_editor_absoluteX="215dp"
+                tools:layout_editor_absoluteY="383dp" />
+
             <!--highchart graph-->
             <WebView
                 android:id="@+id/webview"
@@ -118,5 +138,6 @@
                 android:layout_height="500dp" />
 
         </LinearLayout>
+
     </android.widget.RelativeLayout>
 </ScrollView>

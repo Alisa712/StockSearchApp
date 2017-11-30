@@ -19,6 +19,7 @@ import android.widget.AdapterView;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.ListView;
+import android.widget.ProgressBar;
 import android.widget.Spinner;
 
 
@@ -33,6 +34,9 @@ import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
 import com.facebook.share.model.ShareLinkContent;
 import android.content.SharedPreferences;
+import android.widget.TextView;
+import android.widget.Toast;
+
 import com.facebook.share.widget.ShareDialog;
 
 import org.json.JSONArray;
@@ -51,10 +55,14 @@ import java.util.Map;
 public class Stock_detail_curr extends Fragment {
 
     private View rootview;
+    private TextView indiTextView;
 
     private ListView listview;
     //private ListView favListview;
     private WebView mWebView;
+    private ProgressBar progBar;
+    private ProgressBar tableBar;
+    private boolean webFinished = false;
 
     private String symbol;
     private final String URL = "http://shuhuihe571hw8-env.us-east-2.elasticbeanstalk.com/stock/query?function=TIME_SERIES_DAILY&outputsize=full&symbol=";
@@ -72,7 +80,7 @@ public class Stock_detail_curr extends Fragment {
     private JSONObject stockDetails;
     //public static final String MyPREFERENCES = "MyPrefs";
     SharedPreferences sharedpref;
-
+    //private Spinner changeChartView;
 
 
     @Override
@@ -87,11 +95,13 @@ public class Stock_detail_curr extends Fragment {
         if (rootview == null) {
             rootview = inflater.inflate(R.layout.fragment_stock_detail_current, container, false);
             listview = rootview.findViewById(R.id.tableList);
+            //listview.setVisibility(View.GONE);
+            //indiTextView = rootview.findViewById(R.id.indi);
+            //indiTextView.setVisibility(View.GONE);
+            progBar = rootview.findViewById(R.id.detailProgress);
+            tableBar = rootview.findViewById(R.id.tableBar);
             //favListview = rootview.findViewById(R.id.favorite_list);
             sharedpref = PreferenceManager.getDefaultSharedPreferences(getContext());
-
-
-
             queue = Volley.newRequestQueue(getContext());
             String symbolTemp = getActivity().getIntent().getExtras().getString("symbol");
             symbol = symbolTemp.split("-")[0].trim();
@@ -99,6 +109,7 @@ public class Stock_detail_curr extends Fragment {
 
             currentIndi = "Price";
             Spinner spinner = (Spinner) rootview.findViewById(R.id.change_chart);
+            //spinner.setVisibility(View.GONE);
             spinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
                 @Override
                 public void onItemSelected(AdapterView<?> adapterView, View view, int i, long l) {
@@ -113,15 +124,18 @@ public class Stock_detail_curr extends Fragment {
 
                 }
             });
+
             mWebView = rootview.findViewById(R.id.webview);
+            //mWebView.setVisibility(View.GONE);
             Button button = rootview.findViewById(R.id.change_indicator);
+            //button.setVisibility(View.GONE);
             button.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
                     if (currentIndi != null) {
+                        progBar.setVisibility(View.VISIBLE);
                         loadWebView(symbol, currentIndi);
                     }
-
                 }
             });
 
@@ -147,17 +161,10 @@ public class Stock_detail_curr extends Fragment {
                 }
             });
 
-            //sharedPref();
 
         }
         return rootview;
     }
-//    private void sharedPref () {
-//        SharedPreferences.Editor editor = sharedpref.edit();
-//        editor.clear();
-//        //editor.commit();
-//        editor.apply();
-//    }
 
     private void changeFav(String symbol) throws JSONException {
 
@@ -232,12 +239,6 @@ public class Stock_detail_curr extends Fragment {
         stockReq.setRetryPolicy(new DefaultRetryPolicy(5000, DefaultRetryPolicy.DEFAULT_MAX_RETRIES, DefaultRetryPolicy.DEFAULT_BACKOFF_MULT));
         queue.add(stockReq);
     }
-
-
-
-
-
-
 
     private void getChartURL(String option) {
 
@@ -393,6 +394,8 @@ public class Stock_detail_curr extends Fragment {
                                     listview.setAdapter(detailApater);
 
                                     finished[0] = true;
+                                    tableBar.setVisibility(View.GONE);
+                                    //listview.setVisibility(View.VISIBLE);
                                 } catch (JSONException e) {
                                     e.printStackTrace();
                                     finished[0] = true;
@@ -411,12 +414,24 @@ public class Stock_detail_curr extends Fragment {
     }
 
     final class JavaScriptInterfaceClass {
-
         @JavascriptInterface
         public void sendToAndroid(String s) {
             option = s;
+            //webFinished = finishedWebView;
             //Log.e("js", option);
         }
-    }
 
+        @JavascriptInterface
+        public void completeWeb() {
+            Toast.makeText(getContext(),"js called complete",Toast.LENGTH_SHORT).show();
+            getActivity().runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    //mWebView.setVisibility(View.VISIBLE);
+                    progBar.setVisibility(View.GONE);
+                    //stuff that updates ui
+                }
+            });
+        }
+    }
 }

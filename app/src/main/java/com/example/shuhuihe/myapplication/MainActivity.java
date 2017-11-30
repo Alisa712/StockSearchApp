@@ -16,10 +16,10 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.ListView;
+import android.widget.ProgressBar;
 import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
-
 import com.android.volley.DefaultRetryPolicy;
 import com.android.volley.Request;
 import com.android.volley.RequestQueue;
@@ -28,14 +28,10 @@ import com.android.volley.VolleyError;
 import com.android.volley.toolbox.JsonObjectRequest;
 import com.android.volley.toolbox.Volley;
 import com.google.gson.Gson;
-
-
 import com.google.gson.JsonObject;
-
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
-
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Iterator;
@@ -56,6 +52,7 @@ public class MainActivity extends AppCompatActivity {
     private String currentOrder;
     private int positionInSortSpinner;
     private int positionInOrderSpinner;
+    private ProgressBar refreshBar;
 
 
     @Override
@@ -67,6 +64,9 @@ public class MainActivity extends AppCompatActivity {
         final Button getQuote = (Button) findViewById(R.id.getQuoteButton);
         final Button clearQuote = (Button) findViewById(R.id.clearButton);
         final ImageView refresh = findViewById(R.id.refresh);
+
+        refreshBar = findViewById(R.id.refreshBar);
+        refreshBar.setVisibility(View.GONE);
 
         AutoCompleteAdaptor autoCompleteAdaptor = new AutoCompleteAdaptor(this, R.layout.list_company, company_list);
         searchStock.setAdapter(autoCompleteAdaptor);
@@ -97,7 +97,7 @@ public class MainActivity extends AppCompatActivity {
             Float changePercentInFloat = jobj.get("changePercentInFloat").getAsFloat();
             long timestamp = jobj.get("timestamp").getAsLong();
 
-            Favorite favItem = new Favorite(symbol,price,changeInFloat,changePercentInFloat,timestamp,change,up);
+            Favorite favItem = new Favorite(symbol, price, changeInFloat, changePercentInFloat, timestamp, change, up);
             favList.add(favItem);
 
         }
@@ -106,10 +106,7 @@ public class MainActivity extends AppCompatActivity {
         final Spinner spinnerSort = (Spinner) findViewById(R.id.spinner1);
         final Spinner spinnerOrder = (Spinner) findViewById(R.id.spinner2);
 
-        //spinnerOrder.setEnabled(false);
         Collections.sort(favList, Favorite.defaultComp);
-
-
         final List<String> spinnerList = new ArrayList<>();
 
         spinnerList.add("Sort By");
@@ -125,17 +122,13 @@ public class MainActivity extends AppCompatActivity {
         spinnerListOrder.add("Ascending");
         spinnerListOrder.add("Descending");
 
-
-        ArrayAdapter<String> spinnerAdapter = new ArrayAdapter<String>(this,android.R.layout.simple_list_item_1,spinnerList) {
+        ArrayAdapter<String> spinnerAdapter = new ArrayAdapter<String>(this, android.R.layout.simple_list_item_1, spinnerList) {
             @Override
-            public boolean isEnabled(int position){
-                if(position == 0 || position == positionInSortSpinner)
-                {
+            public boolean isEnabled(int position) {
+                if (position == 0 || position == positionInSortSpinner) {
                     // Disable the second item from Spinner
                     return false;
-                }
-                else
-                {
+                } else {
                     return true;
                 }
             }
@@ -144,27 +137,23 @@ public class MainActivity extends AppCompatActivity {
                                         ViewGroup parent) {
                 View view = super.getDropDownView(position, convertView, parent);
                 TextView tv = (TextView) view;
-                if(position== 0 || position == positionInSortSpinner) {
+                if (position == 0 || position == positionInSortSpinner) {
                     // Set the disable item text color
                     tv.setTextColor(Color.GRAY);
-                }
-                else {
+                } else {
                     tv.setTextColor(Color.BLACK);
                 }
                 return view;
             }
         };
 
-        ArrayAdapter<String> spinnerAdapterOrder = new ArrayAdapter<String>(this,android.R.layout.simple_list_item_1,spinnerListOrder) {
+        ArrayAdapter<String> spinnerAdapterOrder = new ArrayAdapter<String>(this, android.R.layout.simple_list_item_1, spinnerListOrder) {
             @Override
-            public boolean isEnabled(int position){
-                if(position == 0 || position == positionInOrderSpinner)
-                {
+            public boolean isEnabled(int position) {
+                if (position == 0 || position == positionInOrderSpinner) {
                     // Disable the second item from Spinner
                     return false;
-                }
-                else
-                {
+                } else {
                     return true;
                 }
             }
@@ -173,11 +162,10 @@ public class MainActivity extends AppCompatActivity {
                                         ViewGroup parent) {
                 View view = super.getDropDownView(position, convertView, parent);
                 TextView tv = (TextView) view;
-                if(position== 0 || position == positionInOrderSpinner) {
+                if (position == 0 || position == positionInOrderSpinner) {
                     // Set the disable item text color
                     tv.setTextColor(Color.GRAY);
-                }
-                else {
+                } else {
                     tv.setTextColor(Color.BLACK);
                 }
                 return view;
@@ -249,6 +237,12 @@ public class MainActivity extends AppCompatActivity {
 
     private void doSort(String currentSort, String currentOrder, Spinner spinnerSort, Spinner spinnerOrder, ArrayList<Favorite> favList) {
         switch (currentSort) {
+            case "Sort By":
+                positionInSortSpinner = 0;
+                //spinnerOrder.setEnabled(false);
+                positionInOrderSpinner = 0;
+                Collections.sort(favList, Favorite.defaultComp);
+                break;
             case "Default":
                 positionInSortSpinner = 1;
                 spinnerOrder.setEnabled(false);
@@ -258,6 +252,9 @@ public class MainActivity extends AppCompatActivity {
                 positionInSortSpinner = 2;
                 spinnerOrder.setEnabled(true);
                 if (currentOrder.equals("Ascending") || currentOrder.equals("Order")) {
+                    if (currentOrder.equals("Ascending")) {
+                        positionInOrderSpinner = 1;
+                    }
                     Collections.sort(favList, Favorite.symbolComp);
                 } else {
                     positionInOrderSpinner = 2;
@@ -268,6 +265,10 @@ public class MainActivity extends AppCompatActivity {
                 positionInSortSpinner = 3;
                 spinnerOrder.setEnabled(true);
                 if (currentOrder.equals("Ascending") || currentOrder.equals("Order")) {
+                    if (currentOrder.equals("Ascending")) {
+                        positionInOrderSpinner = 1;
+                    }
+
                     Collections.sort(favList, Favorite.priceComp);
                 } else {
                     positionInOrderSpinner = 2;
@@ -278,6 +279,9 @@ public class MainActivity extends AppCompatActivity {
                 positionInSortSpinner = 4;
                 spinnerOrder.setEnabled(true);
                 if (currentOrder.equals("Ascending") || currentOrder.equals("Order")) {
+                    if (currentOrder.equals("Ascending")) {
+                        positionInOrderSpinner = 1;
+                    }
                     Collections.sort(favList, Favorite.changeComp);
                 } else {
                     positionInOrderSpinner = 2;
@@ -289,6 +293,9 @@ public class MainActivity extends AppCompatActivity {
                 positionInSortSpinner = 5;
                 spinnerOrder.setEnabled(true);
                 if (currentOrder.equals("Ascending") || currentOrder.equals("Order")) {
+                    if (currentOrder.equals("Ascending")) {
+                        positionInOrderSpinner = 1;
+                    }
                     Collections.sort(favList, Favorite.changePercentComp);
                 } else {
                     positionInOrderSpinner = 2;
@@ -302,6 +309,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void refreshAllStock() {
+        refreshBar.setVisibility(View.VISIBLE);
         URL = "http://shuhuihe571hw8-env.us-east-2.elasticbeanstalk.com/stock/query?function=TIME_SERIES_DAILY&outputsize=full&symbol=";
         final Map<String, ?> allEntries = sharedpref.getAll();
         final SharedPreferences.Editor editor = sharedpref.edit();
@@ -353,7 +361,7 @@ public class MainActivity extends AppCompatActivity {
                                         stockInfo.put("stockFav", symbol);
                                         stockInfo.put("priceFav", lastPrice.toString());
                                         stockInfo.put("changeFav", changeDetail);
-                                        stockInfo.put("isIncreasing", change>0);
+                                        stockInfo.put("isIncreasing", change > 0);
                                         stockInfo.put("changeInFloat", String.format("%.2f", change));
                                         stockInfo.put("changePercentInFloat", String.format("%.2f", changePercent));
                                         stockInfo.put("timestamp", timestamp);
@@ -362,9 +370,9 @@ public class MainActivity extends AppCompatActivity {
                                         Log.d("stockInfo", stockInfoStr);
                                         editor.putString(symbol, stockInfoStr);
                                         editor.apply();
-                                        details.add(new Favorite(symbol,lastPrice,change,changePercent,timestamp,changeDetail,change>0));
+                                        details.add(new Favorite(symbol, lastPrice, change, changePercent, timestamp, changeDetail, change > 0));
                                         finished[0] = true;
-                                        String t = "hi "+details.size();
+                                        String t = "hi " + details.size();
                                         Log.d("detailsize", details.toString());
                                         Log.d("finised", finished[0].toString());
                                         if (details.size() == allEntries.size()) {
@@ -402,6 +410,8 @@ public class MainActivity extends AppCompatActivity {
         ListView favListview2 = findViewById(R.id.favorite_list);
         FavoriteAdapter favAdapter2 = new FavoriteAdapter(this, R.layout.detail_fav_layout, details);
         favListview2.setAdapter(favAdapter2);
+        refreshBar.setVisibility(View.GONE);
+
 
     }
 

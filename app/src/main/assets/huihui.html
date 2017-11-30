@@ -161,7 +161,9 @@
 								    }, ]
 								};			
 								$scope.chart = Highcharts.chart('chartsContainer', $scope.option1);	
-															window.shuhuiJS.sendToAndroid(JSON.stringify($scope.option1));
+								window.shuhuiJS.sendToAndroid(JSON.stringify($scope.option1));
+								window.shuhuiJS.completeWeb();
+
 					
 					}
 					
@@ -236,6 +238,7 @@
 								}	
 						        $scope.chart = Highcharts.chart('chartsContainer', $scope.option2);
 						        window.shuhuiJS.sendToAndroid(JSON.stringify($scope.option2));
+								window.shuhuiJS.completeWeb();
 
 							} 
 						}
