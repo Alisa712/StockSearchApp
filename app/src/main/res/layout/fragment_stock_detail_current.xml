@@ -150,6 +150,7 @@
                     android:layout_height="match_parent"
                     android:layout_weight="1"
                     android:text="Change"
+                    android:background="@android:color/transparent"
                     android:textAlignment="center"
                     android:textColor="@color/black"
                     android:textSize="24sp"

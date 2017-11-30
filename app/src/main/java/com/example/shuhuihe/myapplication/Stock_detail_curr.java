@@ -156,6 +156,8 @@ public class Stock_detail_curr extends Fragment {
                     if (currentIndi != null) {
                         progBar.setVisibility(View.VISIBLE);
                         loadWebView(symbol, currentIndi);
+                        changeButton.setEnabled(false);
+                        changeButton.setTextColor(Color.GRAY);
                     }
                 }
             });
@@ -192,10 +194,16 @@ public class Stock_detail_curr extends Fragment {
                 @Override
                 public void onItemSelected(AdapterView<?> adapterView, View view, int i, long l) {
                     String selctedIndi = adapterView.getItemAtPosition(i).toString();
+
                     if (!currentIndi.equals(selctedIndi)) {
                         currentIndi = selctedIndi;
                         positionSpinner=i;
+                        changeButton.setEnabled(true);
+                        changeButton.setTextColor(Color.BLACK);
                         spinnerAdapter.notifyDataSetChanged();
+                    } else {
+                        changeButton.setEnabled(false);
+                        changeButton.setTextColor(Color.GRAY);
                     }
                 }
 
