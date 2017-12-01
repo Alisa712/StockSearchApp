@@ -118,67 +118,12 @@
 					catch(e){
 						$scope.error = true;
 						$scope.errorInfo['Price'] = true;
-						window.shuhuiJS.chartError();
-						//window.shuhuiJSHis.hisError();
+						//window.shuhuiJS.chartError();
+						window.shuhuiJSHis.hisError();
 					}
 
 
 					var priceData = $scope.chartsInfo['Price'];
-					if (priceData) {
-							$scope.option1 = {					
-								    chart: {
-								       zoomType: 'x',
-								       height: 300
-								    },
-								    xAxis: {
-								        categories: $scope.formattedDates,
-								    },
-								    title: {
-								        text: $scope.quoteStockName+" "+"Stock Price and Volume",
-								    },
-								    subtitle: {
-								        text: '<a href="https://www.alphavantage.co/" target="_blank">Source: Alpha Vantage</a>',       
-								        useHTML: true
-								    },
-								    yAxis: [{			    	
-								        title: {
-								            text: 'Stock Price'
-								        },     
-								    }, {
-								        title: {
-								            text: 'Volume'
-								        },
-								        opposite: true
-								    }],
-								    plotOptions: {
-								        area: {
-								        	tooltip:{
-								            	valueDecimals: 2
-								    		},
-								            marker: {
-								                enabled: false
-								            },		
-								        }       
-								    },
-								    series: [{
-								    	type: 'area',
-								    	name: 'Price',
-								        data: $scope.closePrice,
-								        color: '#0000FF',
-								        fillOpacity: 0.1,
-								        yAxis: 0
-								    }, {
-								    	type: 'column',
-								    	name: 'Volume',
-								        data: $scope.volumeData,
-								        color: '#FF0000',
-								        yAxis: 1
-								    }, ]
-								};			
-								$scope.chart = Highcharts.chart('chartsContainer', $scope.option1);	
-								window.shuhuiJS.sendToAndroid(JSON.stringify($scope.option1));
-								window.shuhuiJS.completeWeb();
-
 					
 					}
 					
@@ -319,9 +264,7 @@
 			            }
 			        }],
 			    });
-			    if ($scope.error) {
-			    	window.shuhuiJSHis.hisError();
-			    }
+			    // window.shuhuiJSHis.hisSucess();
 			}
 		}
     </script>

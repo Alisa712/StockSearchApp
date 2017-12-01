@@ -11,6 +11,7 @@ import android.webkit.JavascriptInterface;
 import android.webkit.WebSettings;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 
 
@@ -19,6 +20,7 @@ public class Stock_detail_his extends Fragment {
     private WebView mWebView;
     private String symbol;
     private TextView hisFailedMsg;
+    private ProgressBar hisProgressBar;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -38,6 +40,8 @@ public class Stock_detail_his extends Fragment {
             String chartType = "historical";
             symbol = symbolTemp.split("-")[0];
             mWebView = rootview.findViewById(R.id.his_webview);
+            hisProgressBar=rootview.findViewById(R.id.hisBar);
+            hisProgressBar.setVisibility(View.GONE);
             loadWebView(symbol, chartType);
         }
         return rootview;
@@ -45,11 +49,12 @@ public class Stock_detail_his extends Fragment {
 
     @SuppressLint("SetJavaScriptEnabled")
     private void loadWebView(String symbol, String function) {
+        //hisProgressBar.setVisibility(View.VISIBLE);
         WebSettings webSettings = mWebView.getSettings();
         webSettings.setJavaScriptEnabled(true);
         webSettings.setJavaScriptCanOpenWindowsAutomatically(true);
         mWebView.loadUrl("file:///android_asset/huihui.html?" + symbol.trim() + "&" + function);
-        mWebView.addJavascriptInterface(new HisJSInterfaceClass(), "shuhuiJSHis");
+        //mWebView.addJavascriptInterface(new HisJSInterfaceClass(), "shuhuiJSHis");
         mWebView.setWebViewClient(new WebViewClient() {
             @Override
             public void onPageFinished(WebView view, String url) {
@@ -87,6 +92,18 @@ public class Stock_detail_his extends Fragment {
                 public void run() {
                     //progBar.setVisibility(View.GONE);
                     hisFailedMsg.setVisibility(View.VISIBLE);
+                    //hisProgressBar.setVisibility(View.GONE);
+                }
+            });
+        }
+
+        public void hisSucess() {
+            getActivity().runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    //progBar.setVisibility(View.GONE);
+                    hisFailedMsg.setVisibility(View.GONE);
+                    //hisProgressBar.setVisibility(View.GONE);
                 }
             });
         }
