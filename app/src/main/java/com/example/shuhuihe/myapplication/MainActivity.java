@@ -308,6 +308,15 @@ public class MainActivity extends AppCompatActivity {
                 return true;
             }
         });
+
+        favListview.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
+                Intent intent = new Intent(getApplicationContext(), StockDetailActivity.class);
+                intent.putExtra("symbol", favList.get(i).getSymbol());
+                startActivity(intent);
+            }
+        });
     }
 
     private void TimerMethod() {

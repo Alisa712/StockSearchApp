@@ -8,5 +8,18 @@
     <WebView
         android:id="@+id/his_webview"
         android:layout_width="match_parent"
-        android:layout_height="match_parent" />
+        android:layout_height="match_parent">
+
+    </WebView>
+
+    <TextView
+        android:id="@+id/his_failed"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+android:layout_marginTop="300dp"
+        android:text="Failed to load data"
+        android:textAlignment="center"
+        android:textColor="@color/black"
+        android:textSize="30sp" />
+
 </FrameLayout>

@@ -34,6 +34,7 @@ public class Stock_detail_news extends Fragment {
 
     private View rootview;
     private ListView listview;
+    private TextView newsFailedMsg;
     private WebView mWebView;
     private String symbol;
     private final String URL = "http://shuhuihe571hw8-env.us-east-2.elasticbeanstalk.com/stock/news?SYMBOL=";
@@ -53,6 +54,9 @@ public class Stock_detail_news extends Fragment {
         if (rootview == null) {
             rootview = inflater.inflate(R.layout.fragment_stock_detail_news, container, false);
             listview = rootview.findViewById(R.id.newsList);
+            newsFailedMsg = rootview.findViewById(R.id.news_failed);
+
+
 
             queue = Volley.newRequestQueue(getContext());
             String symbolTemp = getActivity().getIntent().getExtras().getString("symbol");
@@ -112,6 +116,7 @@ public class Stock_detail_news extends Fragment {
                             @Override
                             public void onErrorResponse(VolleyError error) {
                                 error.printStackTrace();
+                                newsFailedMsg.setVisibility(View.VISIBLE);
                             }
                         });
         queue.add(jsonArrReq);

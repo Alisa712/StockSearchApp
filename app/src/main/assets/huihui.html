@@ -118,6 +118,8 @@
 					catch(e){
 						$scope.error = true;
 						$scope.errorInfo['Price'] = true;
+						window.shuhuiJS.chartError();
+						window.shuhuiJSHis.hisError();
 					}
 
 
@@ -256,6 +258,7 @@
 							} 
 						}
 						catch(e){
+							window.shuhuiJS.chartError();
 							$scope.errorInfo[indi] = true;
 						}
 					}
@@ -316,6 +319,9 @@
 			            }
 			        }],
 			    });
+			    if ($scope.error) {
+			    	window.shuhuiJSHis.hisError();
+			    }
 			}
 		}
     </script>

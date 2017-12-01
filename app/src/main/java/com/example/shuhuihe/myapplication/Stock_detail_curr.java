@@ -94,6 +94,10 @@ public class Stock_detail_curr extends Fragment {
     private ImageView emptyStarImageView;
     private ImageView filledStarImageView;
 
+    private TextView dataFailedMsg;
+    private TextView chartFailedMsg;
+    private TextView hisFailedMsg;
+
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -110,6 +114,14 @@ public class Stock_detail_curr extends Fragment {
             fbImageView = rootview.findViewById(R.id.facebook);
             emptyStarImageView = rootview.findViewById(R.id.star);
             filledStarImageView = rootview.findViewById(R.id.filledStar);
+            dataFailedMsg = rootview.findViewById(R.id.table_failed);
+            chartFailedMsg = rootview.findViewById(R.id.chart_failed);
+            //hisFailedMsg = rootview.findViewById(R.id.his_failed);
+
+            dataFailedMsg.setVisibility(View.GONE);
+            chartFailedMsg.setVisibility(View.GONE);
+            //hisFailedMsg.setVisibility(View.GONE);
+
 
             fbImageView.setEnabled(false);
             emptyStarImageView.setEnabled(false);
@@ -369,6 +381,12 @@ public class Stock_detail_curr extends Fragment {
                                     String volume;
                                     String changeDetail;
 
+//                                    if (response == null) {
+//                                        tableBar.setVisibility(View.GONE);
+//                                        dataFailedMsg.setVisibility(View.VISIBLE);
+//                                        return;
+//                                    }
+
                                     timeSeriesDaily = response.getJSONObject("Time Series (Daily)");
                                     refreshedTime = response.getJSONObject("Meta Data").getString("3. Last Refreshed");
                                     String currentDate = refreshedTime.substring(0, 10);
@@ -448,6 +466,9 @@ public class Stock_detail_curr extends Fragment {
                                     //listview.setVisibility(View.VISIBLE);
                                 } catch (JSONException e) {
                                     e.printStackTrace();
+                                    tableBar.setVisibility(View.GONE);
+                                    dataFailedMsg.setVisibility(View.VISIBLE);
+                                    //hisFailedMsg.setVisibility(View.VISIBLE);
                                     finished[0] = true;
                                 }
                             }
@@ -455,7 +476,13 @@ public class Stock_detail_curr extends Fragment {
                         new Response.ErrorListener() {
                             @Override
                             public void onErrorResponse(VolleyError error) {
-                                error.printStackTrace();
+                                //progBar.setVisibility(View.GONE);
+                                tableBar.setVisibility(View.GONE);
+                                dataFailedMsg.setVisibility(View.VISIBLE);
+
+
+
+                                //error.printStackTrace();
                             }
                         });
         //while (!finished[0]) {}
@@ -479,7 +506,7 @@ public class Stock_detail_curr extends Fragment {
 
         @JavascriptInterface
         public void completeWeb() {
-            Toast.makeText(getContext(),"js called complete",Toast.LENGTH_SHORT).show();
+            //Toast.makeText(getContext(),"js called complete",Toast.LENGTH_SHORT).show();
             getActivity().runOnUiThread(new Runnable() {
                 @Override
                 public void run() {
@@ -490,5 +517,17 @@ public class Stock_detail_curr extends Fragment {
                 }
             });
         }
+
+        @JavascriptInterface
+        public void chartError() {
+            getActivity().runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    progBar.setVisibility(View.GONE);
+                    chartFailedMsg.setVisibility(View.VISIBLE);
+                }
+            });
+        }
+
     }
 }

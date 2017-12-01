@@ -132,6 +132,7 @@
         android:layout_height="wrap_content"
         android:layout_below="@+id/spinner1"
         android:layout_centerHorizontal="true"
+        android:background="@android:color/white"
         android:layout_marginTop="6dp" >
 
     </ListView>
