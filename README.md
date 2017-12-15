@@ -17,7 +17,7 @@ would display the stock details in a ListView component in the ‘Current’ tab
 Node.js script would be responsible for rendering the HighCharts in the ‘Current’ and ‘Historical’
 tabs and also rending the news articles in the ‘News’ tab.
 
-<p align="center"><img src="overview.png" width="800" height="400"/></p>
+<p align="center"><img src="overview.png" width="800" height="500"/></p>
 
 ### Autocomplete
 The user can enter the stock name or symbol in the text view to get the stock information from
